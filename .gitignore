@@ -1,0 +1,13 @@
+*.pyc
+*.log
+*.error
+*.out
+*.png
+*.nc
+*.tgz
+
+out/
+data/
+build/
+*.egg-info
+dist/

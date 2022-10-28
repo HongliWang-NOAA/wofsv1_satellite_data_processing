@@ -1,0 +1,41 @@
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+- group: wofs-test-variables
+- name: vmImageName
+  value: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+      name: Azure Pipelines
+    steps:
+    - task: Docker@2
+      displayName: 'Build docker image'
+      inputs:
+        containerRegistry: 'func-wofs-prod-001 - Docker'
+        repository: 'wofs/SatelliteProcessing'
+        command: build
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(Build.BuildId)
+          latest
+
+    - task: Docker@2
+      displayName: Publish
+      inputs:
+        containerRegistry: 'func-wofs-prod-001 - Docker'
+        repository: 'wofs/SatelliteProcessing'
+        tags: |
+          $(Build.BuildId)
+          latest  
+        command: push
