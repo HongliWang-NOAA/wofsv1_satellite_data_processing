@@ -15,7 +15,6 @@ from netCDF4 import Dataset
 import numpy as np
 from pyproj import Proj
 import pyresample
-import news_e_post_cbook
 from news_e_post_cbook import *
 from datetime import *
 from math import pi
@@ -82,7 +81,7 @@ sat_z       =   sat_h * np.sin(sat_lat_m)
 
 # INPUT FILES
 cwpfile = os.path.join(cwp_dir, 'cwp_larc.nc')
-wrffile = os.path.join(wrf_dir, 'wrfinput_d01_ic')
+wrffile = os.path.join(wrf_dir, 'wrfinput_d01')
 #wrffile = os.path.join(wrf_dir, 'wrfinput_d02.1')
 #mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoesabi.nc')
 mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')

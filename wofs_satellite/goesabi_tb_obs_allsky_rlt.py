@@ -17,7 +17,6 @@ from netCDF4 import Dataset
 import numpy as np
 #from pyproj import Proj
 import pyresample
-import news_e_post_cbook
 from news_e_post_cbook import *
 from datetime import *
 from math import pi
@@ -73,7 +72,7 @@ file15 = os.path.join(tb_dir, 'ch15_TB.nc')
 file16 = os.path.join(tb_dir, 'ch16_TB.nc')
 cthfile = os.path.join(tb_dir, 'cth.nc')
 
-wrffile = os.path.join(wrf_dir, 'wrfinput_d01_ic')
+wrffile = os.path.join(wrf_dir, 'wrfinput_d01')
 mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')
 
 #file7 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C07_G16_s20181162307.nc'

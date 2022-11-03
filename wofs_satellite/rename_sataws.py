@@ -67,12 +67,12 @@ sday = startdate[8:10]
 shour = startdate[11:13]
 sminute = startdate[14:16]
 ssecond = startdate[17:19]
-print domain, satellite, startdate
-print syear, smonth, sday, shour, sminute, ssecond
+print(domain, satellite, startdate)
+print(syear, smonth, sday, shour, sminute, ssecond)
 
 #   outfile = outdir+satellite+"_"+domain+"_"+dtype+"_"+date+ssecond+".nc"
 outfile = outdir+satellite+"_"+domain+"_"+dtype+"_"+syear+smonth+sday+shour+sminute+ssecond+".nc"
-print outfile
+print(outfile)
 cmmd = "mv "+infile+" "+outfile
 
 os.system(cmmd) 
