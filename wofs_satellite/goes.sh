@@ -56,7 +56,7 @@ cp ${COTFILE} ${TEMPDIR}/cth.nc
 
 ############ RUN PYTHON PROGRAM TO GENERATE CLEAR-SKY TB OBSERVATIONS
 
-python goesabi_tb_obs_allsky_rlt.py -d ${TEMPDIR} -m ${MRMSSAT} -w ${TEMPDIR} -o ${OUTDIR}/${year} -a ${obstime} -t 2 -s ${sat}
+python goesabi_tb_obs_allsky_rlt.py -d ${TEMPDIR} -m ${MRMSSAT} -w ${TEMPDIR} -o ${OUTDIR} -a ${obstime} -t 2 -s ${sat}
 
 rm sat*
 rm cot*

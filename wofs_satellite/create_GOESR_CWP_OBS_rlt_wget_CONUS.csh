@@ -35,7 +35,8 @@ set fcheck = 0
 set sat = 'G16'
 set osat = 'GOES16'
 
-set LARC = /work/rt_obs/Satellite/CWP/RAW_DATA/GOES-E/${year}/RR/
+#set LARC = /work/rt_obs/Satellite/CWP/RAW_DATA/GOES-E/${year}/RR/
+set LARC = https://satcorps.larc.nasa.gov/prod/RapidRefresh/cfe/visst-pixel-netcdf/goese/${year}/${month1}/${day1}
 set WORKDIR = /home/Thomas.Jones/GOES16_PROCESS/scripts_rt
 
 set TEMPDIR = /work/rt_obs/Satellite/CWP/temp/CONUS/
@@ -75,8 +76,13 @@ endif
 
 
   #FIND G16/17/18 FILE
+  set SFILE = ${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
+  set GOESFILE = ${SATDIR}/${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
+  echo ${GOESFILE}
   set LGOESFILE = ${LARC}/${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
-  echo ${LGOESFILE}
+
+  #set LGOESFILE = ${LARC}/${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
+  #echo ${LGOESFILE}
 
   set fff = 0
   while ( ${fcheck} == 0 ) 

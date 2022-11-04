@@ -32,19 +32,16 @@ hour1=`echo ${gdate1} | cut -c 9-10`
 minute1=`echo ${gdate1} | cut -c 11-12`
 
 LARC=/work/rt_obs/Satellite/CWP/RAW_DATA/GOES-E/${year}/RR/
-WORKDIR=/home/Thomas.Jones/GOES16_PROCESS/scripts_rt
 
 TEMPDIR=$(mktemp -d)
+WORKDIR=$TEMPDIR
 
 WRFDIR=$input_directory
 
-MRMSSAT=/work/Thomas.Jones/realtime/OBSGEN/MRMS_template
+MRMSSAT=$input_directory
 SAVEDIR=/work/Thomas.Jones/realtime/OBSGEN/SATDATA/CWP/${year}/CONUS/
 
-OUTDIR=/work/rt_obs/Satellite/CWP/${year}/CONUS/
-
-rm ${TEMPDIR}/*nc
-
+OUTDIR=$output_directory
 
 cd ${WORKDIR}
 
