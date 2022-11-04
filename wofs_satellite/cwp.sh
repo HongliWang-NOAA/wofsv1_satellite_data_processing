@@ -31,15 +31,11 @@ day1=`echo ${gdate1} | cut -c 7-8`
 hour1=`echo ${gdate1} | cut -c 9-10`
 minute1=`echo ${gdate1} | cut -c 11-12`
 
-LARC=/work/rt_obs/Satellite/CWP/RAW_DATA/GOES-E/${year}/RR/
-
 TEMPDIR=$(mktemp -d)
+
 WORKDIR=$TEMPDIR
 
-WRFDIR=$input_directory
-
 MRMSSAT=$input_directory
-SAVEDIR=/work/Thomas.Jones/realtime/OBSGEN/SATDATA/CWP/${year}/CONUS/
 
 OUTDIR=$output_directory
 
@@ -48,11 +44,8 @@ cd ${WORKDIR}
 obstime=${hour}${minute}
 
 #FIND G16/17/18 FILE
-LGOESFILE=${LARC}/${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
-echo ${LGOESFILE}
-
-cp ${LGOESFILE} ${TEMPDIR}/cwp_larc.nc
-
+SFILE=$input_directory/${sat}V04.0.TJ.${year}${gjday1}.${hour1}${minute1}.PX.02K.nc
+cp ${SFILE} ${TEMPDIR}/cwp_larc.nc
 echo ${TEMPDIR}
 
 python goesabi_larccwp_obs_rlt.py -d ${TEMPDIR} -m ${MRMSSAT} -w ${WORKDIR} -o ${OUTDIR}/ -a ${obstime} -t 2 -s ${sat}
