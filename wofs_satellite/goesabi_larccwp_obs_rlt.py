@@ -17,7 +17,7 @@ from pyproj import Proj
 import pyresample
 from news_e_post_cbook import *
 from datetime import *
-from math import pi
+from math import pi, cos, sqrt
 from optparse import OptionParser
 
 ####################################### Parse Options: ######################################################
@@ -54,7 +54,7 @@ iwp_min = 0.05
 cwp_clear_thin    = 2
 
 # DEFINE CONSTANTS
-deg2rad = math.pi/180.0
+deg2rad = pi/180.0
 rad2deg = 1.0/deg2rad
 sat_lat = 0.02 * deg2rad
 if ( sat == 'G16'):
@@ -159,8 +159,8 @@ jday=datetime.strftime(dttme, "%j")
 print(year, month, day, hour, minute)
 
 angletime=int(hour) + int(minute)/60.0
-h_ang = -1.0*math.pi*(angletime - 12.0)/12.0
-declin = -23.45*cos(float(jday)*2 * math.pi/365.0 + 10.*2. * math.pi/365.0)
+h_ang = -1.0*pi*(angletime - 12.0)/12.0
+declin = -23.45*cos(float(jday)*2 * pi/365.0 + 10.*2. * pi/365.0)
 
 
 # LOCATION

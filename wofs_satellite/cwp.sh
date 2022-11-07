@@ -1,62 +1,68 @@
 #!/bin/bash
 
 cycle_time=$1 #yyyyMMddHHMM
-input_directory=/mnt/input #$2
-output_directory=/mnt/output #$3
+input_directory=$2
+output_directory=$3
 sat='G16'
 osat='GOES16'
 
+eval "$(conda shell.bash hook)"
 conda activate wofs-satellite
 
-gdate2=$cycle_time
-year2=$(echo ${gdate2} | cut -c 1-4)
-month2=$(echo ${gdate2} | cut -c 5-6)
-day2=$(echo ${gdate2} | cut -c 7-8)
-hour2=$(echo ${gdate2} | cut -c 9-10)
-minute2=$(echo ${gdate2} | cut -c 11-12)
+gdate=$cycle_time
+year=$(echo ${gdate} | cut -c 1-4)
+month=$(echo ${gdate} | cut -c 5-6)
+day=$(echo ${gdate} | cut -c 7-8)
+hour=$(echo ${gdate} | cut -c 9-10)
+minute=$(echo ${gdate} | cut -c 11-12)
 
-gdate=$(date -u --date='$year2-$month2-${day2}T${hour2}:${minute2}:00 UTC +7 minutes' +%Y%m%d%H%M)
-gjday=$(date -u --date='$year2-$month2-${day2}T${hour2}:${minute2}:00 UTC +7 minutes' +%j)
-gdate1=$(date -u --date='$year2-$month2-${day2}T${hour2}:${minute2}:00 UTC -14 minutes' +%Y%m%d%H%M)
-gjday1=$(date -u --date='$year2-$month2-${day2}T${hour2}:${minute2}:00 UTC -14 minutes' +%j)
+gjday=$(date -u --date="$year-$month-${day}T${hour}:${minute}:00 UTC" +%j)
 
-year=`echo ${gdate} | cut -c 1-4`
-month=`echo ${gdate} | cut -c 5-6`
-day=`echo ${gdate} | cut -c 7-8`
-hour=`echo ${gdate} | cut -c 9-10`
-minute=`echo ${gdate} | cut -c 11-12`
+gdate1=$(date -u --date="$year-$month-${day}T${hour}:${minute}:00 UTC -15 minutes" +%Y%m%d%H%M)
+gjday1=$(date -u --date="$year-$month-${day}T${hour}:${minute}:00 UTC -15 minutes" +%j)
 
-month1=`echo ${gdate1} | cut -c 5-6`
-day1=`echo ${gdate1} | cut -c 7-8`
-hour1=`echo ${gdate1} | cut -c 9-10`
-minute1=`echo ${gdate1} | cut -c 11-12`
-
-TEMPDIR=$(mktemp -d)
-
-WORKDIR=$TEMPDIR
-
-MRMSSAT=$input_directory
-
-OUTDIR=$output_directory
-
-cd ${WORKDIR}
+month1=$(echo ${gdate1} | cut -c 5-6)
+day1=$(echo ${gdate1} | cut -c 7-8)
+hour1=$(echo ${gdate1} | cut -c 9-10)
+minute1=$(echo ${gdate1} | cut -c 11-12)
 
 obstime=${hour}${minute}
 
 #FIND G16/17/18 FILE
-SFILE=$input_directory/${sat}V04.0.TJ.${year}${gjday1}.${hour1}${minute1}.PX.02K.nc
-cp ${SFILE} ${TEMPDIR}/cwp_larc.nc
-echo ${TEMPDIR}
+# High res file..
+SFILE=${sat}V04.0.TJ.${year}${gjday}.${hour}${minute}.PX.02K.nc
+LGOESFILE=https://satcorps.larc.nasa.gov/prod/GOES16-FD/visst-pixel-netcdf/SEUSA/${year}/${month}/${day}/$SFILE
+wget -O $SFILE ${LGOESFILE}
+wgetreturn=$?
 
-python goesabi_larccwp_obs_rlt.py -d ${TEMPDIR} -m ${MRMSSAT} -w ${WORKDIR} -o ${OUTDIR}/ -a ${obstime} -t 2 -s ${sat}
+echo $SFILE
 
-mv ${OUTDIR}/${year}${month1}${day1}${hour1}${minute1}_${osat}_CWP_OBS.nc  ${OUTDIR}/${year}${month2}${day2}${hour2}${minute2}_${osat}_CWP_OBS.nc
-echo ${OUTDIR}/${year}${month1}${day1}${hour1}${minute1}_${osat}_CWP_OBS.nc
-echo  ${OUTDIR}/${year}${month}${day}${hour}${minute}_${osat}_CWP_OBS.nc
+# Low-res T-0 if not available 
+if [[ $wgetreturn -ne 0 ]]; then
+    echo "========= High-res file, $SFILE, was not found. Downloading low-res T-0 file...========="
+    SFILE=${sat}V04.0.RR.${year}${gjday}.${hour}${minute}.PX.06K.nc
+    LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/cfe/visst-pixel-netcdf/goese/${year}/${month}/${day}/$SFILE
+    wget -O $SFILE ${LGOESFILE}
+    wgetreturn=$?
+fi
+
+# Low-res T-15 if not available
+if [[ $wgetreturn -ne 0 ]]; then
+    echo "========= Low-res file, $SFILE, was not found. Downloading low-res T-15 mins file...========="
+    SFILE=${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
+    LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/cfe/visst-pixel-netcdf/goese/${year}/${month1}/${day1}/$SFILE
+    wget -O $SFILE ${LGOESFILE}
+    wgetreturn=$?
+fi
 
 
-cd ${WORKDIR}
-rm sat*
-rm cot*
-rm -r ${TEMPDIR}
-exit(0)
+if [ ! -s "$FILE" ]; then
+    mv ${SFILE} $output_directory/cwp_larc.nc
+    python goesabi_larccwp_obs_rlt.py -d $output_directory -m $output_directory -w $input_directory -o $output_directory/ -a ${obstime} -t 2 -s ${sat}
+fi
+
+
+
+# mv ${OUTDIR}/${year}${month1}${day1}${hour1}${minute1}_${osat}_CWP_OBS.nc  ${OUTDIR}/${year}${month2}${day2}${hour2}${minute2}_${osat}_CWP_OBS.nc
+# echo ${OUTDIR}/${year}${month1}${day1}${hour1}${minute1}_${osat}_CWP_OBS.nc
+# echo  ${OUTDIR}/${year}${month}${day}${hour}${minute}_${osat}_CWP_OBS.nc

@@ -19,7 +19,7 @@ import numpy as np
 import pyresample
 from news_e_post_cbook import *
 from datetime import *
-from math import pi
+from math import pi, sin, cos, sqrt, acos, asin
 from optparse import OptionParser
 
 ####################################### Parse Options: ######################################################
@@ -134,8 +134,8 @@ for j in range(0, nlats):
       mlat[i,j] = maxlat - gspace*(j)
       mlon[i,j] = maxlon - gspace*(i)
 
-print mlon[0,0], mlat[0,0]
-print mlon[nlons-1, nlats-1], mlat[nlons-1, nlats-1]
+print (mlon[0,0], mlat[0,0])
+print (mlon[nlons-1, nlats-1], mlat[nlons-1, nlats-1])
 
 # 3.9 um
 ch7 = Dataset(file7, 'r')
@@ -164,8 +164,8 @@ minute=datetime.strftime(dttme, "%M")
 jday=datetime.strftime(dttme, "%j")
 
 angletime=int(hour) + int(minute)/60.0
-h_ang = -1.0*math.pi*(angletime - 12.0)/12.0
-declin = -23.45*cos(float(jday)*2 * math.pi/365.0 + 10.*2. * math.pi/365.0)
+h_ang = -1.0*pi*(angletime - 12.0)/12.0
+declin = -23.45*cos(float(jday)*2 * pi/365.0 + 10.*2. * pi/365.0)
 
 h = ch7.variables['goes_imager_projection'].perspective_point_height
 r_eq = ch7.variables['goes_imager_projection'].semi_major_axis
@@ -549,10 +549,10 @@ raz_out=np.zeros(shape=(n)) #relative azimuth angle
 
 #time_out=np.zeros(shape=(n))
 nn=0
-rad = math.pi / 180.0
+rad = pi / 180.0
 
 
-deg2rad = math.pi/180.0
+deg2rad = pi/180.0
 rad2deg = 1.0/deg2rad
 sat_lon_deg = sat_lon
 sat_lat_deg = sat_lat
@@ -595,19 +595,19 @@ for ii in range(1, len(tb39_5km[:,0])-2, thin):
        
        # Calculate angles
        mu = (sin(lat_out[nn]*rad) * sin(declin*rad)) + cos(lat_out[nn]*rad)*cos(declin*rad)*cos(h_ang-lon_out[nn]*rad)
-       sza_out[nn] = arccos(mu)/rad
+       sza_out[nn] = acos(mu)/rad
        
-       beta=arccos( cos(lat_out[nn]*rad) * cos((sat_lon_deg - lon_out[nn])*rad) )
-       vza_out[nn] = arcsin(42164.*sin(beta) / sqrt(1.8084e9 - 5.3725e8*cos(beta))) / rad
+       beta=acos( cos(lat_out[nn]*rad) * cos((sat_lon_deg - lon_out[nn])*rad) )
+       vza_out[nn] = asin(42164.*sin(beta) / sqrt(1.8084e9 - 5.3725e8*cos(beta))) / rad
        
-       solaz_out[nn] = (arccos( cos((lat_out[nn] - declin)*rad) * cos(h_ang - lon_out[nn]*rad) ))/rad
+       solaz_out[nn] = (acos( cos((lat_out[nn] - declin)*rad) * cos(h_ang - lon_out[nn]*rad) ))/rad
        
        sataz_out[nn] = (sin((sat_lon_deg - lon_out[nn])*rad) / sin(beta))/rad
        
        raz_out[nn] = (solaz_out[nn] - sataz_out[nn])
        
        cosga = -cos(sza_out[nn]*rad)*cos(vza_out[nn]*rad) - sin(sza_out[nn]*rad)*sin(vza_out[nn]*rad)*sin(raz_out[nn]*rad)
-       sca_out[nn] = arccos(cosga) / rad
+       sca_out[nn] = acos(cosga) / rad
        
        #print lat_out[nn], lon_out[nn], sza_out[nn], vza_out[nn], solaz_out[nn], sataz_out[nn], sca_out[nn]
 
