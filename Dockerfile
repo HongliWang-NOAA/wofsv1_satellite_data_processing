@@ -27,7 +27,4 @@ RUN conda env create --file /opt/wofs/environment.yml
 
 WORKDIR /opt/wofs/wofs_satellite
 
-# using hidden "conda run" command. not ideal, but SHELL was not loading correct environment, despite --login
-# also did not want to put everything in a shell script as the entrypoint, since that screws up signal handling and can lead
-# to the dreaded PID 1 zombie reaping issue
 ENTRYPOINT ["bash", "create.sh"]
