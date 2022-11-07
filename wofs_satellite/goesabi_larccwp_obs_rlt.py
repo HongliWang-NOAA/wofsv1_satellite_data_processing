@@ -81,7 +81,7 @@ sat_z       =   sat_h * np.sin(sat_lat_m)
 
 # INPUT FILES
 cwpfile = os.path.join(cwp_dir, 'cwp_larc.nc')
-wrffile = os.path.join(wrf_dir, 'wrfinput_d01')
+wrffile = wrf_dir
 #wrffile = os.path.join(wrf_dir, 'wrfinput_d02.1')
 #mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoesabi.nc')
 mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')

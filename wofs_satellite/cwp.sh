@@ -1,8 +1,8 @@
 #!/bin/bash
 
 cycle_time=$1 #yyyyMMddHHMM
-input_directory=$2
-output_directory=$3
+data_directory=$2 
+wrf_file_path=$3
 sat='G16'
 osat='GOES16'
 
@@ -32,7 +32,7 @@ obstime=${hour}${minute}
 # High res file..
 SFILE=${sat}V04.0.TJ.${year}${gjday}.${hour}${minute}.PX.02K.nc
 LGOESFILE=https://satcorps.larc.nasa.gov/prod/GOES16-FD/visst-pixel-netcdf/SEUSA/${year}/${month}/${day}/$SFILE
-wget -O $SFILE ${LGOESFILE}
+wget -O $data_directory/$SFILE ${LGOESFILE}
 wgetreturn=$?
 
 echo $SFILE
@@ -42,7 +42,7 @@ if [[ $wgetreturn -ne 0 ]]; then
     echo "========= High-res file, $SFILE, was not found. Downloading low-res T-0 file...========="
     SFILE=${sat}V04.0.RR.${year}${gjday}.${hour}${minute}.PX.06K.nc
     LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/cfe/visst-pixel-netcdf/goese/${year}/${month}/${day}/$SFILE
-    wget -O $SFILE ${LGOESFILE}
+    wget -O $data_directory/$SFILE ${LGOESFILE}
     wgetreturn=$?
 fi
 
@@ -51,14 +51,14 @@ if [[ $wgetreturn -ne 0 ]]; then
     echo "========= Low-res file, $SFILE, was not found. Downloading low-res T-15 mins file...========="
     SFILE=${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
     LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/cfe/visst-pixel-netcdf/goese/${year}/${month1}/${day1}/$SFILE
-    wget -O $SFILE ${LGOESFILE}
+    wget -O $data_directory/$SFILE ${LGOESFILE}
     wgetreturn=$?
 fi
 
 
 if [ ! -s "$FILE" ]; then
-    mv ${SFILE} $output_directory/cwp_larc.nc
-    python goesabi_larccwp_obs_rlt.py -d $output_directory -m $output_directory -w $input_directory -o $output_directory/ -a ${obstime} -t 2 -s ${sat}
+    mv $data_directory/${SFILE} $data_directory/cwp_larc.nc
+    python goesabi_larccwp_obs_rlt.py -d $data_directory -m $data_directory -w $wrf_file_path -o $data_directory/ -a ${obstime} -t 2 -s ${sat}
 fi
 
 
