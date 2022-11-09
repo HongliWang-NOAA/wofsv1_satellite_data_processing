@@ -1,5 +1,5 @@
-cycle_time=$1
-wrf_file_path=$2
+cycle_time=$1 
+wrf_file_path=${2-/mnt/data/wrfinput_d01} # 2nd parameter is the path to the WRF input file; defaults to the data directory if nt provided
 data_directory=/mnt/data
 
 mkdir -p $data_directory/TB
