@@ -84,11 +84,10 @@ mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')
 #file13 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C13_G16_s20181162307.nc'
 #file14 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C14_G16_s20181162307.nc'
 
-
 # READ IN WRFINPUT FILE FOR DOMAIN BOUNDARIES
 wrfin = Dataset(wrffile, "r")
-wlat = wrfin.variables["XLAT"][:]
-wlon = wrfin.variables["XLONG"][:]
+wlat = wrfin.variables['XLAT' if 'XLAT' in wrfin.variables else 'XLAT_M'][:]
+wlon = wrfin.variables['XLONG' if 'XLONG' in wrfin.variables else 'XLONG_M'][:]
 cen_lat = wrfin.CEN_LAT
 cen_lon = wrfin.CEN_LON
 stand_lon = wrfin.STAND_LON
