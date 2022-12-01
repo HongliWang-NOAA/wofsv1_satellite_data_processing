@@ -1,11 +1,12 @@
-######## GENERATE GOES-16 CWP OBSERVATIONS
-##   USE NASA LARC RETRIAVAL FILES
+######## GENERATE GOES-R CWP OBSERVATIONS
+##   USE NASA LARC RETRIAVAL FILES (both special WoF files and standard RR files)
 ##   APPLY PARALLAX CORRECTION
 ##   OUTPUT OBSERVATIONS IN 1-D NETCDF FORMAT
 ##   
 ##   By: 			Thomas A. Jones
 ##	 Create Date:	September 5, 2018
-##	 Version 		1.0
+##	 Version 		1.3
+##	 Modified:      December 1, 2022: Bug fixes and modifications for cloud running
 ########################################
 
 # CONUS
@@ -24,7 +25,7 @@ from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option("-d", dest="cwp_dir", type="string", default= None, help="Input Directory of NASA LARC files")
-parser.add_option("-m", dest="mrms_dir", type="string", help = "Path to dummy MRMS grid file")
+#parser.add_option("-m", dest="mrms_dir", type="string", help = "Path to dummy MRMS grid file")
 parser.add_option("-w", dest="wrf_dir", type="string", help = "Path to wrfinput_d01 file domain info")
 parser.add_option("-o", dest="out_dir", type="string", help = "Output Directory observation file")
 parser.add_option("-a", dest="observation_time", type="string", help = "Time at which obs are to be assimialted")
@@ -33,7 +34,7 @@ parser.add_option("-s", dest="sat", type="string", help = "Satellite G16, G17")
 (options, args) = parser.parse_args()
 
 cwp_dir = options.cwp_dir
-mrms_dir = options.mrms_dir
+#mrms_dir = options.mrms_dir
 wrf_dir = options.wrf_dir
 out_dir = options.out_dir
 obstime = options.observation_time
@@ -57,7 +58,7 @@ cwp_clear_thin    = 2
 deg2rad = pi/180.0
 rad2deg = 1.0/deg2rad
 sat_lat = 0.02 * deg2rad
-if ( sat == 'G16'):
+if ( sat  == 'G16'):
    sat_lon = -75.18 * deg2rad  #G16
    p = Proj(proj='geos', h='35786023.0', lon_0=sat_lon*rad2deg, sweep='x')
    osat = 'GOES16'
@@ -65,6 +66,12 @@ if ( sat == 'G17'):
    sat_lon = -137.2 * deg2rad  #G17
    p = Proj(proj='geos', h='35786023.0', lon_0=sat_lon*rad2deg, sweep='x')
    osat = 'GOES17'
+if ( sat == 'G18'):
+   sat_lon = -137.2 * deg2rad  #G17
+   p = Proj(proj='geos', h='35786023.0', lon_0=sat_lon*rad2deg, sweep='x')
+   osat = 'GOES18'
+
+
 sat_h = 35786.023       #km
 eqr_rad = 6378.137
 pol_rad = 6356.7523
@@ -84,7 +91,7 @@ cwpfile = os.path.join(cwp_dir, 'cwp_larc.nc')
 wrffile = wrf_dir
 #wrffile = os.path.join(wrf_dir, 'wrfinput_d02.1')
 #mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoesabi.nc')
-mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')
+#mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')
 
 # READ IN WRFINPUT FILE FOR DOMAIN BOUNDARIES
 wrfin = Dataset(wrffile, "r")
@@ -108,26 +115,10 @@ print("minlon: ", minlon)
 print("maxlat: ", maxlat)
 print("minlat: ", minlat)
 
-# READ IN 5 KM MRMS FILE FOR FINAL DOMAIN
-#mrmsin = Dataset(mrmsfile, "r")
 
-#mlat = mrmsin.variables["Lat2D"][:,:]
-#mlon = mrmsin.variables["Lon2D"][:,:]
-
-#nlons  = len(mrmsin.dimensions['Lon'])
-#nlats  = len(mrmsin.dimensions['Lat'])
-
-#mlon = np.zeros(shape=(nlons,nlats))*np.nan
-#mlat = np.zeros(shape=(nlons,nlats))*np.nan
-
-#for j in range(0, nlats-1):
-#   for i in range(0, nlons-1):
-#      mlat[i,j] = mrmsin.Latitude - mrmsin.LatGridSpacing*(j)
-#      mlon[i,j] = mrmsin.Longitude + mrmsin.LonGridSpacing*(i)
-
-#mrmsin.close()
-nlons = 500
-nlats = 500
+# CREATE 5 km SMOOTHED GRID
+nlons = 350
+nlats = 350
 
 mlon = np.zeros(shape=(nlons,nlats))*np.nan
 mlat = np.zeros(shape=(nlons,nlats))*np.nan
@@ -238,7 +229,7 @@ newiwp = np.zeros(shape=(nx,ny))*0.0
 newlwp = np.zeros(shape=(nx,ny))*0.0
 newclear = np.zeros(shape=(nx,ny))*9999.
 
-output1 = open("test1.txt", "w+")
+#output1 = open("test1.txt", "w+")
 qq=0
 
 #print len(cot[:,0]), len(cot[0,:])
@@ -326,14 +317,12 @@ for ii in range(0, len(cot[:,0])-1):
        
        qq=qq+1
 
-       if (cth[ii,jj] > 1.0 ):
-          output1.write("%10.3f %10.3f %10.3f %10.3f %10.3f %10.3f \n" % (qq*1.0,clat[ii,jj],plat[ii,jj],clon[ii,jj],plon[ii,jj],cth[ii,jj] ) )
+       #if (cth[ii,jj] > 1.0 ):
+       #   output1.write("%10.3f %10.3f %10.3f %10.3f %10.3f %10.3f \n" % (qq*1.0,clat[ii,jj],plat[ii,jj],clon[ii,jj],plon[ii,jj],cth[ii,jj] ) )
 
-output1.close()
+#output1.close()
 
 #### 
-
-
 
 #### REFORM DATA ON TO 5 KM MRMS GRID
 orig_def = pyresample.geometry.SwathDefinition(lons=plon[0:nx,0:ny], lats=plat[0:nx,0:ny])
@@ -414,26 +403,26 @@ count_iwp_ngt   = 0
 
 nmax_cloud=250000
 cc=0
-cwp_out=np.zeros(shape=(nmax_cloud))
-ctp_out=np.zeros(shape=(nmax_cloud))
-cbp_out=np.zeros(shape=(nmax_cloud))
-cep_out=np.zeros(shape=(nmax_cloud))
-cwp_lat=np.zeros(shape=(nmax_cloud))
-cwp_lon=np.zeros(shape=(nmax_cloud))
-cwp_err=np.zeros(shape=(nmax_cloud))
-cwp_phase=np.zeros(shape=(nmax_cloud))  #0=CWP0, 1=LWP, 2=IWP, 3=CWP0_NGT, 4=LWP_NGT, 5=IWP_NGT
+cwp_out=np.zeros(shape=(nmax_cloud))*np.nan
+ctp_out=np.zeros(shape=(nmax_cloud))*np.nan
+cbp_out=np.zeros(shape=(nmax_cloud))*np.nan
+cep_out=np.zeros(shape=(nmax_cloud))*np.nan
+cwp_lat=np.zeros(shape=(nmax_cloud))*np.nan
+cwp_lon=np.zeros(shape=(nmax_cloud))*np.nan
+cwp_err=np.zeros(shape=(nmax_cloud))*np.nan
+cwp_phase=np.zeros(shape=(nmax_cloud))*np.nan  #0=CWP0, 1=LWP, 2=IWP, 3=CWP0_NGT, 4=LWP_NGT, 5=IWP_NGT
 										#6=LWP0, 7=LWP_NGT0
 cwp_phase[:] = -999
 
 thin=1
 
 
-for bb in range(1, len(sza_5km[0,:])-2, thin):
-    lon = mlons[bb]
-    if (lon > minlon and lon < maxlon and lon > minlon_cwp and lon < maxlon_cwp):
-     for aa in range(1, len(sza_5km[:,0])-2, thin):
-      lat = mlats[aa]
-      if (lat > minlat and lat < maxlat and lat > minlat_cwp and lat < maxlat_cwp):
+for aa in range(1, len(sza_5km[:,0])-2, thin):
+    #if (mlon[aa,bb] > minlon and mlon[aa,bb] < maxlon and mlon[aa,bb] > minlon_cwp and mlon[aa,bb] < maxlon_cwp):
+     for bb in range(1, len(sza_5km[0,:])-2, thin):
+      tlat=mlat[aa,bb]
+      tlon=mlon[aa,bb]
+      if (tlat > minlat and tlat < maxlat and tlat > minlat_cwp and tlat < maxlat_cwp and tlon > minlon and tlon < maxlon):
        szatemp = sza_5km[aa,bb]
        cleartemp = clear_5km[aa,bb]
        #cottemp = cot_5km[aa,bb]
@@ -466,8 +455,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
               ctp_out[cc] = -999.9
               cbp_out[cc] = 9999.9
               cwp_phase[cc] = 0
-              cwp_lon[cc] = lon
-              cwp_lat[cc] = lat 
+              cwp_lon[cc] = mlon[aa,bb]
+              cwp_lat[cc] = mlat[aa,bb]
               cwp_err[cc] = 0.0225
               cc=cc+1
               count_cwp0 += 1
@@ -484,8 +473,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
             ctp_out[cc] = ctptemp
             cbp_out[cc] = cbptemp             
             cwp_phase[cc] = 1  
-            cwp_lon[cc] = lon
-            cwp_lat[cc] = lat  
+            cwp_lon[cc] = mlon[aa,bb]
+            cwp_lat[cc] = mlat[aa,bb]  
             
             if lwptemp >= 0.025 and lwptemp < 0.2:
                cwp_stddev = 0.05
@@ -509,8 +498,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
              ctp_out[cc] = -999.9
              cbp_out[cc] = 9999.9
              cwp_phase[cc] = 6
-             cwp_lon[cc] = lon
-             cwp_lat[cc] = lat 
+             cwp_lon[cc] = mlon[aa,bb]
+             cwp_lat[cc] = mlat[aa,bb] 
              cwp_err[cc] = 0.0225
              cc=cc+1
              count_lwp0 += 1     
@@ -522,8 +511,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
             ctp_out[cc] = ctptemp
             cbp_out[cc] = cbptemp      
             cwp_phase[cc] = 2 
-            cwp_lon[cc] = lon
-            cwp_lat[cc] = lat  
+            cwp_lon[cc] = mlon[aa,bb]
+            cwp_lat[cc] = mlat[aa,bb]  
             if iwptemp >= 0.025 and iwptemp < 0.2:
                cwp_stddev = 0.05
             if iwptemp >= 0.2 and iwptemp < 2.0:
@@ -546,8 +535,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
               ctp_out[cc] = -999.9
               cbp_out[cc] = 9999.9
               cwp_phase[cc] = 3
-              cwp_lon[cc] = lon
-              cwp_lat[cc] = lat 
+              cwp_lon[cc] = mlon[aa,bb]
+              cwp_lat[cc] = mlat[aa,bb] 
               cwp_err[cc] = 0.0225            
               cc=cc+1
               count_cwp0_ngt += 1
@@ -559,8 +548,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
             ctp_out[cc] = ctptemp
             cbp_out[cc] = cbptemp      
             cwp_phase[cc] = 4  
-            cwp_lon[cc] = lon
-            cwp_lat[cc] = lat 
+            cwp_lon[cc] = mlon[aa,bb]
+            cwp_lat[cc] = mlat[aa,bb] 
             if lwptemp >= 0.025 and lwptemp < 0.2:
                cwp_stddev = 0.05
             if lwptemp >= 0.2 and lwptemp < 2.0:
@@ -582,8 +571,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
              ctp_out[cc] = -999.9
              cbp_out[cc] = 9999.9
              cwp_phase[cc] = 7
-             cwp_lon[cc] = lon
-             cwp_lat[cc] = lat 
+             cwp_lon[cc] = mlon[aa,bb]
+             cwp_lat[cc] = mlat[aa,bb] 
              cwp_err[cc] = 0.0225
              cc=cc+1
              count_lwp0_ngt += 1     
@@ -595,8 +584,8 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
             ctp_out[cc] = ctptemp
             cbp_out[cc] = cbptemp      
             cwp_phase[cc] = 5
-            cwp_lon[cc] = lon
-            cwp_lat[cc] = lat  
+            cwp_lon[cc] = mlon[aa,bb]
+            cwp_lat[cc] = mlat[aa,bb]  
             if iwptemp >= 0.025 and iwptemp < 0.2:
                cwp_stddev = 0.05
             if iwptemp >= 0.2 and iwptemp < 2.0:
@@ -611,16 +600,16 @@ for bb in range(1, len(sza_5km[0,:])-2, thin):
 
 
 print("\n >%s<" % ("=" * 79))
-print("\n  PyDart.MRMS->  Total number of OBSs:     %d" % cc)
-print("\n  PyDart.MRMS->  Total number of LWP:           %d" % count_lwp)
-print("\n  PyDart.MRMS->  Total number of LWP0:          %d" % count_lwp0)
-print("\n  PyDart.MRMS->  Total number of IWP:           %d" % count_iwp)
-#print("\n  PyDart.MRMS->  Total number of CWP:           %d" % cc)
-print("\n  PyDart.MRMS->  Total number of CWP_ZER0:      %d" % count_cwp0) 
-print("\n  PyDart.MRMS->  Total number of LWP NIGHTTIME: %d" % count_lwp_ngt)
-print("\n  PyDart.MRMS->  Total number of LWP0 NIGHTTIME: %d" % count_lwp0_ngt)
-print("\n  PyDart.MRMS->  Total number of IWP NIGHTTIME: %d" % count_iwp_ngt)
-print("\n  PyDart.MRMS->  Total number of CWP_ZER0 NIGHT: %d" % count_cwp0_ngt)                         
+print("\n  PyDart.CWP->  Total number of OBSs:     %d" % cc)
+print("\n  PyDart.CWP->  Total number of LWP:           %d" % count_lwp)
+print("\n  PyDart.CWP->  Total number of LWP0:          %d" % count_lwp0)
+print("\n  PyDart.CWP->  Total number of IWP:           %d" % count_iwp)
+#print("\n  PyDart.CWP->  Total number of CWP:           %d" % cc)
+print("\n  PyDart.CWP->  Total number of CWP_ZER0:      %d" % count_cwp0) 
+print("\n  PyDart.CWP->  Total number of LWP NIGHTTIME: %d" % count_lwp_ngt)
+print("\n  PyDart.CWP->  Total number of LWP0 NIGHTTIME: %d" % count_lwp0_ngt)
+print("\n  PyDart.CWP->  Total number of IWP NIGHTTIME: %d" % count_iwp_ngt)
+print("\n  PyDart.CWP->  Total number of CWP_ZER0 NIGHT: %d" % count_cwp0_ngt)                         
 print("\n >%s<" % ("=" * 79))
 
 

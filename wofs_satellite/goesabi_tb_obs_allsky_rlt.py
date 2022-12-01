@@ -1,12 +1,13 @@
-######## GENERATE GOES-16 TB OBSERVATIONS FOR ALL IR CHANNELS
+######## GENERATE GOES-R TB OBSERVATIONS FOR ALL IR CHANNELS
 ##   USE CONUS LEVEL 1-B DATA GILES
 ##   USE CONUS LEVEL 2 CLOUD TOP HEIGHT 
 ##   OUTPUT OBSERVATIONS IN 1-D NETCDF FORMAT
 ##   
 ##   By: 			Thomas A. Jones
 ##	 Create Date:	May 10, 2018
-##	 Version 		1.2
+##	 Version 		1.3
 ##	 Modified 		November 20, 2018: Start adding all-sky requirements
+##				December 1, 2022: Bug fixes and modifiecations for use on the cloud
 ##									
 ####################################################
 
@@ -56,6 +57,9 @@ if ( sat == 'G16'):
 if ( sat == 'G17'):             
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-137.2', sweep='x')
    osat = 'GOES17'
+if ( sat == 'G18'):
+#   p = Proj(proj='geos', h='35786023.0', lon_0='-137.2', sweep='x')
+   osat = 'GOES18'
 
 #plotdir='/oldhome/Thomas.Jones/GOES16_PROCESS/python/'
 
@@ -83,6 +87,7 @@ mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')
 #file12 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C12_G16_s20181162307.nc'
 #file13 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C13_G16_s20181162307.nc'
 #file14 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C14_G16_s20181162307.nc'
+
 
 # READ IN WRFINPUT FILE FOR DOMAIN BOUNDARIES
 wrfin = Dataset(wrffile, "r")
