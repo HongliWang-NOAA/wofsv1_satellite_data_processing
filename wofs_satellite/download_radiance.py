@@ -47,7 +47,7 @@ most_recent_per_channel = [next(iter(sorted(data, key = itemgetter(1), reverse =
 
 for (chan, time, file) in most_recent_per_channel:
       c = int(chan)
-      if 7 <= c and c <= 16:
+      if c == 2 or (7 <= c and c <= 16):
             print(file)
             fs.get(path+file, file)
             os.system("mv "+file+" "+os.path.join(outdir, f'ch{chan}_TB.nc'))

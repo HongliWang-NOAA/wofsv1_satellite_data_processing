@@ -1,25 +1,16 @@
 #!/usr/bin/env python
 import matplotlib
 matplotlib.use('Agg')
-from mpl_toolkits.basemap import Basemap
-from pyproj import Proj
-import pyresample
 import math
-from math import radians, tan, sin, cos, pi, atan, sqrt, pow, asin, acos
-import pylab as P
+from math import cos
 import numpy as np
-from numpy import NAN
 import sys
 from netCDF4 import Dataset
 from optparse import OptionParser
-from netcdftime import utime
 import os
-import time as timeit
 from datetime import *
 from optparse import OptionParser
-import news_e_plotting_cbook_sat
 from wofs_plotting_cbook_sat import *
-import json
 
 ####################################### Parse Options: ######################################################
 
@@ -27,13 +18,13 @@ parser = OptionParser()
 parser.add_option("-p", dest="plotdir", type="string", default= None, help="Directory for Plots")
 parser.add_option("-d", dest="tb_dir", type="string", help = "Directory to GOES-ABI L1B Data")
 parser.add_option("-w", dest="geodir", type="string", help = "Location of wrfinput file for domain info")
-parser.add_option("-t", dest="t", type="int", help = "Timestep to process")
+# parser.add_option("-t", dest="t", type="int", help = "Timestep to process")
 parser.add_option("-g", dest="gdate", type="string", help = "Input time")
 
 
 (options, args) = parser.parse_args()
 
-if ((options.plotdir == None) or (options.tb_dir == None) or (options.t == None)):
+if ((options.plotdir == None) or (options.tb_dir == None)):
     print
     parser.print_help()
     print
@@ -42,7 +33,7 @@ else:
     tb_dir = options.tb_dir
     plotdir = options.plotdir
     geodir = options.geodir
-    t = options.t
+    #t = options.t
     gdate = options.gdate
 
 
@@ -50,7 +41,7 @@ else:
 #p = Proj(proj='geos', h='35786023.0', lon_0='-75.2', sweep='x')
 
 
-timestep = str(t)
+# timestep = str(t)
 domain = 'full'
 
 #################################### User-Defined Variables:  #####################################################
@@ -350,7 +341,7 @@ print("min of data_var ch14: ",np.min(tb112))
 ch14.close()
 
 
-geofile = os.path.join(geodir, "wrfinput_d01_ic")
+geofile = geodir
 gin = Dataset(geofile, "r")
 
 
@@ -365,8 +356,8 @@ init_label = ' '
 
 ############ Get grid/projection info, chop 'edge' from boundaries: ####################
 
-gxlat = gin.variables['XLAT'][:]
-gxlon = gin.variables['XLONG'][:]
+gxlat = gin.variables['XLAT' if 'XLAT' in gin.variables else 'XLAT_M'][:]
+gxlon = gin.variables['XLONG' if 'XLONG' in gin.variables else 'XLONG_M'][:]
 
 gxlat = gxlat[0,edge:-edge,edge:-edge]
 gxlon = gxlon[0,edge:-edge,edge:-edge]
@@ -403,7 +394,7 @@ xv, yv = map(lonsv[:], latsv[:])
 ###################################### Make Plots: #######################################################
 ##########################################################################################################
 
-print 'plot part'
+print('plot part')
 
 ######################## Synthetic Satellite Plots: #####################
 
@@ -412,11 +403,11 @@ dumbvarv = np.zeros((latsv.shape[0], latsv.shape[1]))
 
 vis_plot.name = 'g16vis_'+gdate
 vis_plot.var1_title = 'GOES-16 Visible (0.64 um)  '
-sat_plot(map, fig, ax1, ax2, ax3, xv, yv, vis_plot, vis64_gamma[:,:], dumbvarv[:,:], t, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
+sat_plot(map, fig, ax1, ax2, ax3, xv, yv, vis_plot, vis64_gamma[:,:], dumbvarv[:,:], 0, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
 
 ir_plot.name = 'g16ir112_'+gdate
 ir_plot.var1_title = 'GOES-16 Infrared (11.2 um) Tb (K) '
-sat_plot(map, fig, ax1, ax2, ax3, x, y, ir_plot, tb112[:,:], dumbvar[:,:], t, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False') 
+sat_plot(map, fig, ax1, ax2, ax3, x, y, ir_plot, tb112[:,:], dumbvar[:,:], 0, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False') 
 
 #ir_plot.name = 'g16ir103_'+gdate
 #ir_plot.var1_title = 'GOES-16 Infrared (10.3 um) Tb (K) '
@@ -424,27 +415,27 @@ sat_plot(map, fig, ax1, ax2, ax3, x, y, ir_plot, tb112[:,:], dumbvar[:,:], t, in
 
 wv_plot.name = 'g16wv73_'+gdate
 wv_plot.var1_title = 'GOES-16 Low-level Water Vapor (7.3 um) Tb (K) '
-sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb73[:,:], dumbvar[:,:], t, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False') 
+sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb73[:,:], dumbvar[:,:], 0, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False') 
 
 wv_plot.name = 'g16wv69_'+gdate
 wv_plot.var1_title = 'GOES-16 Mid-level Water Vapor (6.9 um) Tb (K) '
-sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb69[:,:], dumbvar[:,:], t, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
+sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb69[:,:], dumbvar[:,:], 0, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
 
 wv_plot.name = 'g16wv62_'+gdate
 wv_plot.var1_title = 'GOES-16 Upper-level Water Vapor (6.2 um) Tb (K) '
-sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb62[:,:], dumbvar[:,:], t, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
+sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb62[:,:], dumbvar[:,:], 0, init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
 
 ###### Update latest time .json for web viewer: ######
 
-lead_time_seconds = t * 300
-json_file = os.path.join(plotdir, 'latest_complete_satellite_verif_g16.json')
+# lead_time_seconds = t * 300
+# json_file = os.path.join(plotdir, 'latest_complete_satellite_verif_g16.json')
 
-complete_times = {'latest_complete_times' : {
-                    'model': lead_time_seconds }}
+# complete_times = {'latest_complete_times' : {
+#                     'model': lead_time_seconds }}
 
-#json_string = json.dumps( complete_times )
+# #json_string = json.dumps( complete_times )
 
-with open(json_file, "w") as file_out:
+# with open(json_file, "w") as file_out:
 
-    file_out.write( json.dumps(complete_times) )
+#     file_out.write( json.dumps(complete_times) )
 

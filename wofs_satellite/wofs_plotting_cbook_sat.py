@@ -45,12 +45,12 @@
 
 import numpy as np
 from mpl_toolkits.basemap import Basemap
-import matplotlib
+import matplotlib, os
 import pylab as P
 from scipy import signal
 from scipy import *
 from scipy import ndimage
-import ctables			#Separate file with Carbone42 (soloii) colortable amongst others
+# import ctables			#Separate file with Carbone42 (soloii) colortable amongst others
 
 #######################################################################################
 
@@ -111,22 +111,37 @@ class cb_colors(object):
    green9 = (0/255., 68/255., 27/255.)
 
    gray1 = (255/255., 255/255., 255/255.)
+   gray125 = (251/255., 251/255., 251/255.)
    gray15 = (247/255., 247/255., 247/255.)
+   gray175 = (243/255., 243/255., 243/255.)
    gray2 = (240/255., 240/255., 240/255.)
+   gray225 = (234/255., 234/255., 234/255.)
    gray25 = (228/255., 228/255., 228/255.)
+   gray275 = (223/255., 223/235., 223/255.)
    gray3 = (217/255., 217/255., 217/255.)
+   gray325 = (210/255., 210/255., 210/255.) 
    gray35 = (204/255., 204/255., 204/255.)
+   gray375 = (197/255., 191/255., 197/255.)
    gray4 = (189/255., 189/255., 189/255.)
+   gray425 = (180/255., 180/255., 180/255.)
    gray45 = (170/255., 170/255., 170/255.)
+   gray475 = (160/255., 160/255., 160/255.)
    gray5 = (150/255., 150/255., 150/255.)
+   gray525 = (140/255., 140/255., 140/255.)
    gray55 = (130/255., 130/255., 130/255.)
+   gray575 = (122/255., 122/255., 122/255.)
    gray6 = (115/255., 115/255., 115/255.)
+   gray625 = (107/255., 107/255., 107/255.)
    gray65 = (99/255., 99/255., 99/255.)
+   gray675 = (91/255., 91/255., 91/255.)
    gray7 = (82/255., 82/255., 82/255.)
    gray725 = (69/255., 69/255., 69/255.)
    gray75 = (50/255., 50/255., 50/255.)
+   gray775 = (43/255., 43/255., 43/255.)
    gray8 = (37/255., 37/255., 37/255.)
-   gray85 = (19/255., 19/255., 19/255.)
+   gray825 = (25/255., 25/255., 25/255.)
+   gray85 = (13/255., 13/255., 13/255.)
+   gray875 = (2/255., 2/255., 2/255.)
    gray9 = (0/255., 0/255., 0/255.)
 
    red1 = (255/255., 245/255., 240/255.)
@@ -335,12 +350,12 @@ class cb_colors(object):
 #   ir_cmap = matplotlib.colors.ListedColormap([gray8, gray6, gray5, gray4, purple4, purple5, purple6, blue8, blue7, blue6, blue5, blue4, blue3, green7, green6, green5, green4, green3, green2, orange2, orange3, orange4, orange5, red5, red6, red7, red8])  
    ir_cmap = matplotlib.colors.ListedColormap([ir6,ir7,ir8,ir9,ir10,ir11,purple9,purple8, purple7,ir12,ir13,ir14,ir15,ir16,ir17,ir18,ir19,ir20,ir21,ir22,ir23,ir24,ir25,ir26,ir27,ir28,ir29,ir30,ir31,ir32,ir33,ir34,ir35,ir36,ir37,ir38,ir39,ir40,ir41,ir42,ir43,ir44,ir45,ir46,ir47,ir48,ir49,ir50,ir51,ir515, ir52,ir525,ir53,ir535,ir54,ir545,ir55,ir555,ir56,ir57,ir58,ir585,ir59,ir60,ir61,ir62])   
 
-   wv_cmap = matplotlib.colors.ListedColormap([green8, green7, green6, green5, green4, blue3, blue4, blue5, blue6, blue7, blue8, blue9, purple7, purple6, purple5, purple4, gray2, gray3, gray4, gray5, gray6, gray7, gray8, gray9,orange5,orange6,orange7,red4,red5, red6, red7, red8, red9 ])
+   wv_cmap = matplotlib.colors.ListedColormap([green8, green8, green7, green7, green6, green5, green4, blue3, blue4, blue5, blue5, blue6, blue7, blue8, blue9, purple7, purple6, purple5, purple4, gray2, gray3, gray4, gray5, gray5, gray6, gray7, gray8, gray9,orange5,orange5,orange6,orange7,red4,red5, red6, red7, red8,red8, red9,red9,red9 ])
 #   wv_cmap = matplotlib.colors.ListedColormap([wv1,wv2,wv3,wv4,wv5,wv6,wv7,wv8,wv9,wv10,wv11,wv12,wv13,wv14,wv15,wv16,wv17,wv18,wv19,wv20,wv21,wv22,wv23,wv24,wv25,wv26,wv27,wv28,wv29,wv30,wv31,wv32,wv33,wv34,wv35,wv36,wv37,wv38] )
 
    pw_cmap = matplotlib.colors.ListedColormap([orange5, orange4, orange3, orange2,green1, green2, green3, green4,green5, green6, green7, green8, green9, blue4, blue5, blue6, blue7, blue8, purple4, purple5, purple6,purple7,red4,red5,red6,red7 ])
 
-   vis_cmap = matplotlib.colors.ListedColormap([gray9, gray8,gray75, gray7, gray65,gray6, gray55,gray5, gray45,gray4, gray35,gray3, gray25,gray2, gray15,gray1] )
+   vis_cmap = matplotlib.colors.ListedColormap([gray9,gray9,gray875,gray85,gray825,gray8,gray775,gray75,gray75,gray725,gray7,gray675,gray65,gray65,gray625,gray6,gray575,gray55,gray55,gray525,gray5,gray475,gray45,gray45,gray425,gray4,gray375,gray35,gray35,gray325,gray3,gray275,gray25,gray225,gray2,gray175,gray15,gray125,gray1,gray1 ] )
    irbw_cmap = matplotlib.colors.ListedColormap([gray1, gray15, gray2, gray25, gray3, gray35, gray4, gray45, gray5, gray55, gray6, gray65, gray7, gray725, gray75, gray8, gray85, gray9] )
 
    
@@ -478,8 +493,8 @@ def mymap(sw_lat, sw_lon, ne_lat, ne_lon, lat_1, lat_2, lat_0, lon_0, damage_fil
 
    #if (counties == 'True'):
    #   map.drawcounties(linewidth=0.6, color=cb_colors.gray3)
-   map.drawstates(linewidth=2., color="black")
-   map.drawcoastlines(linewidth=2., color="black")
+   # map.drawstates(linewidth=2., color="black")
+   # map.drawcoastlines(linewidth=2., color="black")
    map.drawcountries(linewidth=2., color="black")
 
    for f in range(0, len(damage_files)):
@@ -920,7 +935,7 @@ def sat_plot(map, fig, ax1, ax2, ax3, x, y, plot, var1, var2, t, init_label, val
 ########### Save figure as .png, then clear all plots from basemap template: ################
 
 #   fig_name = outdir + plot.name + '_' + outtime + '.png'
-   fig_name = outdir + plot.name + '.png'
+   fig_name = os.path.join(outdir, plot.name + '.png')
    P.savefig(fig_name, format="png", bbox_inches='tight', transparent="True")
 
    P.cla()

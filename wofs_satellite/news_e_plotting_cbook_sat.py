@@ -47,10 +47,7 @@ import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib
 import pylab as P
-from scipy import signal
 from scipy import *
-from scipy import ndimage
-import ctables			#Separate file with Carbone42 (soloii) colortable amongst others
 
 #######################################################################################
 

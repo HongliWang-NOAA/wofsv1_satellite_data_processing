@@ -15,3 +15,5 @@ bash cwp.sh $cycle_time $data_directory $wrf_file_path
 
 obstime=$(echo ${cycle_time} | cut -c 9-12)
 python goesabi_tb_obs_allsky_rlt.py -d ${data_directory}/TB -m ${data_directory} -w ${wrf_file_path} -o $data_directory -a ${obstime} -t 2 -s 'G16'
+
+python abi_data_plot_cloud.py -d ${data_directory}/TB -p ${data_directory} -w ${wrf_file_path} -g $cycle_time
