@@ -14,7 +14,7 @@ ENV PATH="${CNDA}/bin:${PATH}"
 
 ENV PROJ_LIB="${CNDA}/share/proj" 
 
-RUN apt update && apt install -y curl unzip bzip2
+RUN apt update && apt install -y curl unzip bzip2 wget
 
 COPY ./wofs_satellite /opt/wofs/wofs_satellite
 COPY ./environment.yml /opt/wofs
@@ -31,4 +31,4 @@ RUN micromamba activate wofs-satellite && \
 
 WORKDIR /opt/wofs/wofs_satellite
 
-ENTRYPOINT ["bash", "create.sh"]
+ENTRYPOINT ["bash", "--login", "create.sh"]
