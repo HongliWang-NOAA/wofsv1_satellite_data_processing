@@ -4,10 +4,21 @@ trigger:
 resources:
 - repo: self
 
+parameters:
+- name: wofs_package_version
+  displayName: Major/Minor Version
+  type: string
+  default: 2.0
+
 variables:
 - group: wofs-test-variables
 - name: vmImageName
   value: 'ubuntu-latest'
+- group: wofs-pipeline-variables
+- name: vmImageName
+  value: 'ubuntu-latest'
+- name: WOFS_VERSION
+  value: ${{ parameters.wofs_package_version }}
 
 stages:
 - stage: Build
