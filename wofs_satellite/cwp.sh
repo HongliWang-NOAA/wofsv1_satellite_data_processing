@@ -6,8 +6,8 @@ wrf_file_path=$3
 sat='G16'
 osat='GOES16'
 
-eval "$(conda shell.bash hook)"
-conda activate wofs-satellite
+eval "$(micromamba shell hook --shell=bash)"
+micromamba activate wofs-satellite
 
 gdate=$cycle_time
 year=$(echo ${gdate} | cut -c 1-4)
