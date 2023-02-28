@@ -14,7 +14,7 @@ ENV PATH="${CNDA}/bin:${PATH}"
 
 ENV PROJ_LIB="${CNDA}/share/proj" 
 
-RUN apt update && apt install -y curl unzip
+RUN apt update && apt install -y curl unzip bzip2
 
 # RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O conda-install.sh && \
 #     chmod 755 conda-install.sh && \
