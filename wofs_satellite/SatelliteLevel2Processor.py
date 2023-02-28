@@ -1,13 +1,7 @@
 """ Minor data preprocessing before plotting data """
 
-# Python Modules 
-from datetime import datetime
-import itertools
-from collections import OrderedDict
-
 # Internal Modules
 from wofs.common.zarr import open_dataset
-from wofs.plotting.util import to_list, is_list, is_same_type, check_threshs_for_plot_type
 from wofs.plotting.data_preprocessing import DataPreProcessor
 
 import os

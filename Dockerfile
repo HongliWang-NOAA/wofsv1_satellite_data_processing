@@ -29,6 +29,10 @@ COPY ./environment.yml /opt/wofs
 RUN curl micro.mamba.pm/install.sh | bash && \
     /root/.local/bin/micromamba env create --file /opt/wofs/environment.yml
 
+RUN micromamba activate wofs-satellite && \
+    echo "micromamba activate wofs-satellite" >> ~/.bashrc && \
+    python -m pip install wofs==$WofsPackageVersion
+
 # override the RUN command to use --login, which will load profile scripts (bashrc) and make conda visible
 SHELL ["/bin/bash", "--login", "-c"]
 

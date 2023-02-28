@@ -11,3 +11,5 @@ data/
 build/
 *.egg-info
 dist/
+
+wofs_satellite/test1.txt
