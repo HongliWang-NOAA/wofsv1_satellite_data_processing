@@ -14,7 +14,7 @@ ENV PATH="${CNDA}/bin:${PATH}"
 
 ENV PROJ_LIB="${CNDA}/share/proj" 
 
-RUN apt update && apt install -y wget unzip
+RUN apt update && apt install -y curl unzip
 
 # RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O conda-install.sh && \
 #     chmod 755 conda-install.sh && \
@@ -28,8 +28,7 @@ COPY ./environment.yml /opt/wofs
 
 RUN curl micro.mamba.pm/install.sh | bash && \
     #micromamba shell activate && \
-    cd /opt/wofs && \    
-    /root/.local/bin/micromamba env create --file environment.yml && \
+    /root/.local/bin/micromamba env create --file /opt/wofs/environment.yml && \
     micromamba activate wofs-satellite && \
     echo "micromamba activate wofs-satellite" >> ~/.bashrc
 
