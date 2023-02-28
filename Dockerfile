@@ -27,9 +27,8 @@ COPY ./wofs_satellite /opt/wofs/wofs_satellite
 COPY ./environment.yml /opt/wofs
 
 RUN curl micro.mamba.pm/install.sh | bash && \
-    /root/.local/bin/micromamba env create --file /opt/wofs/environment.yml
-
-RUN micromamba activate wofs-satellite && \
+    /root/.local/bin/micromamba env create --file /opt/wofs/environment.yml && \
+    /root/.local/bin/micromamba activate wofs-satellite && \
     echo "micromamba activate wofs-satellite" >> ~/.bashrc && \
     python -m pip install wofs==$WofsPackageVersion
 
