@@ -14,7 +14,7 @@ ENV PATH="${CNDA}/bin:${PATH}"
 
 ENV PROJ_LIB="${CNDA}/share/proj" 
 
-RUN apt update && apt install -y curl unzip bzip2 wget
+RUN apt update && apt install -y curl unzip bzip2 wget pngquant
 
 COPY ./wofs_satellite /opt/wofs/wofs_satellite
 COPY ./environment.yml /opt/wofs
