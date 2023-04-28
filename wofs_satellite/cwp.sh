@@ -62,7 +62,9 @@ if [ ! -s "$FILE" ]; then
     mv $data_directory/${SFILE} $data_directory/cwp_larc.nc
     python goesabi_larccwp_obs_rlt.py -d $data_directory -w $wrf_file_path -o $data_directory/ -a ${obstime} -t 2 -s ${sat}
 
-    for f in $data_directory/*GOES16_CWP_OBS*; do mv "$data_directory/$f" "$data_directory/${year}${month}${day}${hour}${minute}_$(echo "$f" | cut -c 13-)"; done
+    cd $data_directory
+
+    for f in *GOES16_CWP_OBS*; do mv "$f" "${year}${month}${day}${hour}${minute}$(echo "$f" | cut -c 13-)"; done
 fi
 
 
