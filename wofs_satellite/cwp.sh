@@ -6,7 +6,7 @@ wrf_file_path=$3
 sat='G16'
 osat='GOES16'
 
-eval "$(micromamba shell hook --shell=bash)"
+eval "$(/root/.local/bin/micromamba shell hook --shell=bash)"
 micromamba activate wofs-satellite
 
 gdate=$cycle_time
@@ -30,8 +30,10 @@ obstime=${hour}${minute}
 
 #FIND G16/17/18 FILE
 # High res file..
-SFILE=${sat}V04.0.TJ.${year}${gjday}.${hour}${minute}.PX.02K.nc
-LGOESFILE=https://satcorps.larc.nasa.gov/prod/GOES16-FD/visst-pixel-netcdf/SEUSA/${year}/${month}/${day}/$SFILE
+highres_time_hour=$(date -u --date="$year-$month-${day}T${hour}:${minute}:00 UTC -4 minutes" +%H)
+highres_time_min=$(date -u --date="$year-$month-${day}T${hour}:${minute}:00 UTC -4 minutes" +%M)
+SFILE=${sat}V04.0.TJ.${year}${gjday}.${highres_time_hour}${highres_time_min}.PX.02K.nc
+LGOESFILE=https://satcorps.larc.nasa.gov/prod/www-user/rabi/GOES16-FD/visst-pixel-netcdf/SEUSA/${year}/${month}/${day}/$SFILE
 wget -O $data_directory/$SFILE ${LGOESFILE}
 wgetreturn=$?
 
