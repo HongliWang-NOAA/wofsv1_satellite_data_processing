@@ -418,11 +418,11 @@ thin=1
 
 
 for aa in range(1, len(sza_5km[:,0])-2, thin):
-    #if (mlon[aa,bb] > minlon and mlon[aa,bb] < maxlon and mlon[aa,bb] > minlon_cwp and mlon[aa,bb] < maxlon_cwp):
      for bb in range(1, len(sza_5km[0,:])-2, thin):
       tlat=mlat[aa,bb]
       tlon=mlon[aa,bb]
-      if (tlat > minlat and tlat < maxlat and tlat > minlat_cwp and tlat < maxlat_cwp and tlon > minlon and tlon < maxlon):
+      if (tlat > minlat and tlat < maxlat and tlat > minlat_cwp and tlat < maxlat_cwp and \
+          tlon > minlon and tlon < maxlon and tlon > minlon_cwp and tlon < maxlon_cwp):
        szatemp = sza_5km[aa,bb]
        cleartemp = clear_5km[aa,bb]
        #cottemp = cot_5km[aa,bb]
