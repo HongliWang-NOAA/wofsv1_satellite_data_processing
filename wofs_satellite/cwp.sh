@@ -43,7 +43,7 @@ echo $SFILE
 if [[ $wgetreturn -ne 0 ]]; then
     echo "========= High-res file, $SFILE, was not found. Downloading low-res T-0 file...========="
     SFILE=${sat}V04.0.RR.${year}${gjday}.${hour}${minute}.PX.06K.nc
-    LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/visst-pixel-netcdf/goese/${year}/${month}/${day}/$SFILE
+    LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/visst-pixel-netcdf/${year}/${month}/${day}/$SFILE
     wget -O $data_directory/$SFILE ${LGOESFILE}
     wgetreturn=$?
 fi
@@ -52,7 +52,7 @@ fi
 if [[ $wgetreturn -ne 0 ]]; then
     echo "========= Low-res file, $SFILE, was not found. Downloading low-res T-15 mins file...========="
     SFILE=${sat}V04.0.RR.${year}${gjday1}.${hour1}${minute1}.PX.06K.nc
-    LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/visst-pixel-netcdf/goese/${year}/${month1}/${day1}/$SFILE
+    LGOESFILE=https://satcorps.larc.nasa.gov/prod/RapidRefresh/visst-pixel-netcdf/${year}/${month1}/${day1}/$SFILE
     wget -O $data_directory/$SFILE ${LGOESFILE}
     wgetreturn=$?
 fi
