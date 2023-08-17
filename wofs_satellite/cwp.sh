@@ -7,8 +7,8 @@ sat="G$4"
 sat_num=$4
 #osat='GOES16'
 
-eval "$(/root/.local/bin/micromamba shell hook --shell=bash)"
-micromamba activate wofs-satellite
+# eval "$(/root/.local/bin/micromamba shell hook --shell=bash)"
+# micromamba activate wofs-satellite
 
 gdate=$cycle_time
 year=$(echo ${gdate} | cut -c 1-4)

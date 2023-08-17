@@ -5,8 +5,8 @@ satellite=${4-16}
 
 mkdir -p $data_directory/TB
 
-eval "$(micromamba shell hook --shell=bash)"
-micromamba activate wofs-satellite
+# eval "$(micromamba shell hook --shell=bash)"
+# micromamba activate wofs-satellite
 
 python download_level2.py -o "$data_directory/TB/" -p "ACHAC" -t $cycle_time -s $satellite
 

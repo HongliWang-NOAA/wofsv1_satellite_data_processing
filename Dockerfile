@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bookworm-slim
 
 WORKDIR /opt/wofs
 
@@ -14,20 +14,23 @@ ENV PATH="${CNDA}/bin:${PATH}"
 
 ENV PROJ_LIB="${CNDA}/share/proj" 
 
+ENV MAMBA_ROOT_PREFIX=/opt/micromamba
+
 RUN apt update && apt install -y curl unzip bzip2 wget pngquant
 
 COPY ./wofs_satellite /opt/wofs/wofs_satellite
 COPY ./environment.yml /opt/wofs
 
-RUN curl micro.mamba.pm/install.sh | bash && \
-    /root/.local/bin/micromamba env create --file /opt/wofs/environment.yml && \
-    echo "micromamba activate wofs-satellite" >> ~/.bashrc 
+RUN curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+
+RUN /opt/wofs/bin/micromamba shell hook -s posix > /opt/load.sh && \
+    . /opt/load.sh && \
+    /opt/wofs/bin/micromamba env create --file /opt/wofs/environment.yml && \
+    echo ". /opt/load.sh && micromamba activate wofs-satellite" >> ~/.bashrc && \
+    micromamba activate wofs-satellite
 
 # override the RUN command to use --login, which will load profile scripts (bashrc) and make conda visible
 SHELL ["/bin/bash", "--login", "-c"]
-
-RUN micromamba activate wofs-satellite && \  
-    python -m pip install wofs==$WofsPackageVersion
 
 WORKDIR /opt/wofs/wofs_satellite
 
