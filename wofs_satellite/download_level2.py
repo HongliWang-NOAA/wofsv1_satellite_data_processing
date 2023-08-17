@@ -36,7 +36,7 @@ end = dt + datetime.timedelta(minutes = 1)
 valid_files = []
 
 for v in files:
-      m = re.match('^OR_ABI-L2-ACHAC-M6_G16_s(?P<year>\d{4})(?P<day>\d{3})(?P<hour>\d{2})(?P<minute>\d{2})', v.split('/')[-1])
+      m = re.match('^OR_ABI-L2-ACHAC-M6_G'+sat+'_s(?P<year>\d{4})(?P<day>\d{3})(?P<hour>\d{2})(?P<minute>\d{2})', v.split('/')[-1])
       if m != None:
             d = datetime.datetime.strptime(m.group('year') + "-" + m.group('day') + '-' + m.group('hour') + m.group('minute'), "%Y-%j-%H%M")
             if start <= d and d <= end:

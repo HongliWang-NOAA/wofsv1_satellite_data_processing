@@ -3,8 +3,9 @@
 cycle_time=$1 #yyyyMMddHHMM
 data_directory=$2 
 wrf_file_path=$3
-sat='G16'
-osat='GOES16'
+sat="G$4"
+sat_num=$4
+#osat='GOES16'
 
 eval "$(/root/.local/bin/micromamba shell hook --shell=bash)"
 micromamba activate wofs-satellite
@@ -64,7 +65,7 @@ if [ ! -s "$FILE" ]; then
 
     cd $data_directory
 
-    for f in *GOES16_CWP_OBS*; do mv "$f" "${year}${month}${day}${hour}${minute}$(echo "$f" | cut -c 13-)"; done
+    for f in *GOES${sat_num}_CWP_OBS*; do mv "$f" "${year}${month}${day}${hour}${minute}$(echo "$f" | cut -c 13-)"; done
 fi
 
 
