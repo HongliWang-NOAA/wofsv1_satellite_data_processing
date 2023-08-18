@@ -34,7 +34,7 @@ obstime=${hour}${minute}
 highres_time_hour=$(date -u --date="$year-$month-${day}T${hour}:${minute}:00 UTC -4 minutes" +%H)
 highres_time_min=$(date -u --date="$year-$month-${day}T${hour}:${minute}:00 UTC -4 minutes" +%M)
 SFILE=${sat}V04.0.TJ.${year}${gjday}.${highres_time_hour}${highres_time_min}.PX.02K.nc
-LGOESFILE=https://satcorps.larc.nasa.gov/prod/www-user/rabi/GOES16-FD/visst-pixel-netcdf/SEUSA/${year}/${month}/${day}/$SFILE
+LGOESFILE=https://satcorps.larc.nasa.gov/prod/www-user/rabi/visst-pixel-netcdf/GOES_CONUS/${year}/${month}/${day}/$SFILE
 wget -O $data_directory/$SFILE ${LGOESFILE}
 wgetreturn=$?
 
