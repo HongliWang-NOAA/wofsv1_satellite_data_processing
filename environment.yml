@@ -43,5 +43,6 @@ dependencies:
   - scikit-learn-intelex=2023.0.1
   - imbalanced-learn=0.10.1
   - pip:
+    - numba-kdtree==0.1.8
     - hyperopt==0.2.7 
     - wofs
