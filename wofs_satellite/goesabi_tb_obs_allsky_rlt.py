@@ -8,7 +8,7 @@
 ##	 Version 		1.3
 ##	 Modified 		November 20, 2018: Start adding all-sky requirements
 ##				December 1, 2022: Bug fixes and modifiecations for use on the cloud
-##									
+##	                        June 2023: Make version for 2 km CTH product								
 ####################################################
 
 # CONUS
@@ -27,16 +27,14 @@ from optparse import OptionParser
 
 parser = OptionParser()
 parser.add_option("-d", dest="tb_dir", type="string", default= None, help="Input Directory of L1B files")
-parser.add_option("-m", dest="mrms_dir", type="string", help = "Path to dummy MRMS grid file")
 parser.add_option("-w", dest="wrf_dir", type="string", help = "Path to wrfinput_d01 file domain info")
 parser.add_option("-o", dest="out_dir", type="string", help = "Output Directory observation file")
 parser.add_option("-a", dest="observation_time", type="string", help = "Time at which obs are to be assimialted")
 parser.add_option("-t", dest="thin", type="int", help = "Thinning Number")
-parser.add_option("-s", dest="sat", type="string", help = "Satellite: G16, G17")
+parser.add_option("-s", dest="sat", type="string", help = "Satellite: G16, G17, G18")
 (options, args) = parser.parse_args()
 
 tb_dir = options.tb_dir
-mrms_dir = options.mrms_dir
 wrf_dir = options.wrf_dir
 out_dir = options.out_dir
 obstime = options.observation_time
@@ -61,7 +59,6 @@ if ( sat == 'G18'):
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-137.2', sweep='x')
    osat = 'GOES18'
 
-#plotdir='/oldhome/Thomas.Jones/GOES16_PROCESS/python/'
 
 # INPUT FILES
 file7 = os.path.join(tb_dir, 'ch07_TB.nc')
@@ -77,7 +74,6 @@ file16 = os.path.join(tb_dir, 'ch16_TB.nc')
 cthfile = os.path.join(tb_dir, 'cth.nc')
 
 wrffile = wrf_dir
-mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')
 
 #file7 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C07_G16_s20181162307.nc'
 #file8 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C08_G16_s20181162307.nc'
@@ -91,6 +87,8 @@ mrmsfile = os.path.join(mrms_dir, 'dummy_mrmsgoes16.nc')
 
 # READ IN WRFINPUT FILE FOR DOMAIN BOUNDARIES
 wrfin = Dataset(wrffile, "r")
+#wlat = wrfin.variables["XLAT"][:]
+#wlon = wrfin.variables["XLONG"][:]
 wlat = wrfin.variables['XLAT' if 'XLAT' in wrfin.variables else 'XLAT_M'][:]
 wlon = wrfin.variables['XLONG' if 'XLONG' in wrfin.variables else 'XLONG_M'][:]
 cen_lat = wrfin.CEN_LAT
@@ -110,23 +108,7 @@ print("minlon: ", minlon)
 print("maxlat: ", maxlat)
 print("minlat: ", minlat)
 
-# READ IN 5 KM MRMS FILE FOR FINAL DOMAIN
-#mrmsin = Dataset(mrmsfile, "r")
-#mlat = mrmsin.variables["Lat2D"][:,:]
-#mlon = mrmsin.variables["Lon2D"][:,:]
-#nlons  = len(mrmsin.dimensions['Lon'])
-#nlats  = len(mrmsin.dimensions['Lat'])
-
-#mlon = np.zeros(shape=(nlons,nlats))*np.nan
-#mlat = np.zeros(shape=(nlons,nlats))*np.nan
-
-#for j in range(0, nlats-1):
-#   for i in range(0, nlons-1):
-#      mlat[i,j] = mrmsin.Latitude - mrmsin.LatGridSpacing*(j)
-#      mlon[i,j] = mrmsin.Longitude + mrmsin.LonGridSpacing*(i)
-
-#mrmsin.close()
-
+# CREATE OBS GRID
 nlons = 500
 nlats = 500
 
@@ -138,8 +120,8 @@ for j in range(0, nlats):
       mlat[i,j] = maxlat - gspace*(j)
       mlon[i,j] = maxlon - gspace*(i)
 
-print (mlon[0,0], mlat[0,0])
-print (mlon[nlons-1, nlats-1], mlat[nlons-1, nlats-1])
+print(mlon[0,0], mlat[0,0])
+print(mlon[nlons-1, nlats-1], mlat[nlons-1, nlats-1])
 
 # 3.9 um
 ch7 = Dataset(file7, 'r')
@@ -479,9 +461,9 @@ for ii in range(0, len(tb62[:,0])):
             n=n+1
 
 
-#### REFORM DATA ON TO 5 KM MRMS GRID
+#### REFORM DATA TO NEW  GRID
 orig_def = pyresample.geometry.SwathDefinition(lons=lons[5:nx,5:ny], lats=lats[5:nx,5:ny])
-cth_def = pyresample.geometry.SwathDefinition(lons=cth_lons[1:cth_nx,1:cth_ny], lats=cth_lats[1:cth_nx,1:cth_ny])
+cth_def = pyresample.geometry.SwathDefinition(lons=cth_lons[5:cth_nx,5:cth_ny], lats=cth_lats[5:cth_nx,5:cth_ny])
 targ_def = pyresample.geometry.SwathDefinition(lons=mlon, lats=mlat)
 
 wf = lambda r: 1/r**2
@@ -528,7 +510,7 @@ tb133_5km = pyresample.kd_tree.resample_custom(orig_def, temptb133[5:nx,5:ny], \
                           weight_funcs=wf, fill_value=None)      
 
 
-cth_5km = pyresample.kd_tree.resample_custom(cth_def, cth_scale[1:cth_nx,1:cth_ny], \
+cth_5km = pyresample.kd_tree.resample_custom(cth_def, cth_scale[5:cth_nx,5:cth_ny], \
                           targ_def, radius_of_influence=10000, neighbours=10,\
                           weight_funcs=wf, fill_value=None)
 
@@ -581,7 +563,7 @@ for ii in range(1, len(tb39_5km[:,0])-2, thin):
       
       #if ((tb62_5km[ii,jj] > 100.0) and (tb62_5km[ii,jj] < 400.0) and boxcot3 < 0.1): 
       if ( (tb62_5km[ii,jj] > 100.0) and (tb62_5km[ii,jj] < 400.0) ):
-       #print ii, jj, cth_5km[ii,jj]
+       print(ii, jj, cth_5km[ii,jj], tb73_5km[ii,jj])
        lat_out[nn]=mlat[ii,jj]
        lon_out[nn]=mlon[ii,jj]
        #time_out[nn]=time[ii,jj]
@@ -670,7 +652,6 @@ for ii in range(1, len(tb39_5km[:,0])-2, thin):
 ## WRITE OBSERVATIONS TO OUTPUT FILE (to be used by read_goesabi_netcdf.f90 in GSI)
 if (nn > 1):
 
-  #ofile = str(year)+str(month)+str(day)+str(hour)+str(minute)+"_GOES16_TB_CLEAR.nc"
   ofile = str(year)+str(month)+str(day)+str(obstime)+"_"+str(osat)+"_TB_ALLSKY.nc"
   outfile = os.path.join(out_dir, ofile)
   #outfile = '/home/Thomas.Jones/GOES16_PROCESS/test_data/tb_obs.nc'
@@ -737,21 +718,6 @@ if (nn > 1):
   fout.close()
   del fout
 
-
-
-#edge            = 2             #number of grid points to remove from near domain boundaries
-#plot_alpha      = 0.8 
-#neighborhood =10
-#resolution      = 'h'
-#area_thresh     = 1000.
-#damage_files = ''
-#init_label = ' '
-#valid_label = ' '
-#domain = 'full'
-
-#wv_levels               = np.arange(190,270,2)          # K
-#pmm_wv_levels           = [100., 300.]                          #K 
-#pmm_wv_colors_gray      = [cb_colors.gray8, cb_colors.gray8]    #gray contours
 
 #wv_plot = web_plot('',                   \
 #                   'GOES-16 ABI  Water Vapor (K)',                      \

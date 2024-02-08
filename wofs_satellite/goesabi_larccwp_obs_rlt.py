@@ -38,7 +38,7 @@ cwp_dir = options.cwp_dir
 wrf_dir = options.wrf_dir
 out_dir = options.out_dir
 obstime = options.observation_time
-thin = options.thin
+cwp_clear_thin = options.thin
 sat = options.sat
 
 # GRID SPACING
@@ -51,8 +51,6 @@ fudge = 0.15  #0.15 degrees from boundary
 lwp_min = 0.05
 lwp_min2 = 0.015
 iwp_min = 0.05
-
-cwp_clear_thin    = 2
 
 # DEFINE CONSTANTS
 deg2rad = pi/180.0
@@ -95,6 +93,8 @@ wrffile = wrf_dir
 
 # READ IN WRFINPUT FILE FOR DOMAIN BOUNDARIES
 wrfin = Dataset(wrffile, "r")
+#wlat = wrfin.variables["XLAT"][:]
+#wlon = wrfin.variables["XLONG"][:]
 wlat = wrfin.variables['XLAT' if 'XLAT' in wrfin.variables else 'XLAT_M'][:]
 wlon = wrfin.variables['XLONG' if 'XLONG' in wrfin.variables else 'XLONG_M'][:]
 cen_lat = wrfin.CEN_LAT
@@ -185,10 +185,10 @@ phase = cwpin.variables['cloud_phase'][:,:]
 		#cloud_phase:value_2 = "ice cloud" ;
 		#cloud_phase:value_3 = "no retrieval" ;
 		#cloud_phase:value_4 = "clear" ;
-		#cloud_phase:value_5 = "bad data" ;
-		#cloud_phase:value_6 = "suspected water cloud" ;
-		#cloud_phase:value_7 = "suspected ice cloud" ;
-
+		#cloud_phase:value_5 = "bad data" ;              DO NOT USE
+		#cloud_phase:value_6 = "suspected water cloud" ; DO NOT USE
+		#cloud_phase:value_7 = "suspected ice cloud" ;   DO NOT USE
+                #cloud_phase:value_13 = "cleaned data" ; ????
 
 #**** READ IN 2-D CTH (km)
 cth = cwpin.variables['cloud_top_height'][:,:]
@@ -265,8 +265,6 @@ for ii in range(0, len(cot[:,0])-1):
        mod_y       =   sat_y - omod_y
        mod_z       =   sat_z - omod_z
 
-       #print mod_x, mod_y, mod_z
-
        ax_mod      =   np.sqrt(mod_x*mod_x + mod_y*mod_y + mod_z*mod_z)
        cosbeta     =   -(omod_x*mod_x + omod_y*mod_y + omod_z*mod_z)/(ob_mod*ax_mod)
        aa          =   1.
@@ -286,10 +284,7 @@ for ii in range(0, len(cot[:,0])-1):
        plat[ii,jj]     = new_lat
        plon[ii,jj]     = new_lon
 
-       #if ( obs_cth > 5.0 and clon[ii,jj] < -95.0 ):
-       #  print ii,jj, clon[ii,jj] - plon[ii,jj], clat[ii,jj] - plat[ii,jj]  
-
-	   # WHILE WE ARE HERE, DO HIGH CWP ADJUSTMENT
+       # WHILE WE ARE HERE, DO HIGH CWP ADJUSTMENT
        if ( (ir112[ii,jj] < 240.0) and (cot[ii,jj] > 8.0) and (phase[ii,jj] == 2) ):
          templwp=( 4.7*(cot[ii,jj]**1.1) )  
          tempiwp=( 0.305*(cwp[ii,jj]**1.194) )  
@@ -298,15 +293,24 @@ for ii in range(0, len(cot[:,0])-1):
        #else :
        #  adjcwp[ii,jj] = cwp[ii,jj]
 
-	   # ALSO WHILE WE ARE HERE, GENERATE SEPARATE ARRAYS FOR IWP AND LWP FIELDS
-       if ( (phase[ii,jj] == 1) or (phase[ii,jj] == 6) and (adjcwp[ii,jj] > 0.03) ): 
+       # ALSO WHILE WE ARE HERE, GENERATE SEPARATE ARRAYS FOR IWP AND LWP FIELDS
+       if ( (phase[ii,jj] == 1) and (adjcwp[ii,jj] > 0.03) ): 
           #newlwp[ii,jj] = adjcwp[ii,jj]
           newlwp[ii,jj] = cwp[ii,jj]  # LWP never adjusted
 
-       if ( (phase[ii,jj] == 2) or (phase[ii,jj] == 7) and (adjcwp[ii,jj] > 0.03) ): 
+       if ( (phase[ii,jj] == 2) and (adjcwp[ii,jj] > 0.03) ): 
           #newiwp[ii,jj] = adjcwp[ii,jj]
           newiwp[ii,jj] = cwp[ii,jj]
  
+       #if ( (phase[ii,jj] == 6) and (adjcwp[ii,jj] > 0.03) ):
+          #newlwp[ii,jj] = adjcwp[ii,jj]
+       #   newlwp[ii,jj] = cwp[ii,jj]  # LWP never adjusted
+
+       if ( (phase[ii,jj] == 7) and (adjcwp[ii,jj] > 0.03) ):
+          #newiwp[ii,jj] = adjcwp[ii,jj]
+          newiwp[ii,jj] = cwp[ii,jj]
+
+
        # CLEAR STUFF
        if ( (phase[ii,jj] == 4) or (phase[ii,jj] == 3) or (phase[ii,jj] == 0) ): 
            adjcwp[ii,jj] = 0.0
@@ -314,7 +318,16 @@ for ii in range(0, len(cot[:,0])-1):
        if ( adjcwp[ii,jj] < lwp_min2 ): 
            adjcwp[ii,jj] = 0.0
            cwp[ii,jj] = 0.0
-       
+      
+       # BAD DATA
+       if ( (phase[ii,jj] == 5) or (phase[ii,jj] == 6) ):
+           adjcwp[ii,jj] = np.nan
+           cwp[ii,jj] = np.nan
+           newiwp[ii,jj] = np.nan
+           newlwp[ii,jj] = np.nan
+           sza[ii,jj] = np.nan
+           ctp[ii,jj] = np.nan
+
        qq=qq+1
 
        #if (cth[ii,jj] > 1.0 ):
@@ -413,10 +426,9 @@ cwp_err=np.zeros(shape=(nmax_cloud))*np.nan
 cwp_phase=np.zeros(shape=(nmax_cloud))*np.nan  #0=CWP0, 1=LWP, 2=IWP, 3=CWP0_NGT, 4=LWP_NGT, 5=IWP_NGT
 										#6=LWP0, 7=LWP_NGT0
 cwp_phase[:] = -999
+cwp_stddev0 = 0.0225    #DEFAULT CWP OBS ERROR
 
-thin=1
-
-
+thin=1  #FOR NOW, DON'T THIN ALL OBS
 for aa in range(1, len(sza_5km[:,0])-2, thin):
      for bb in range(1, len(sza_5km[0,:])-2, thin):
       tlat=mlat[aa,bb]
@@ -440,15 +452,15 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
         ceptemp=500.0
 
 
-      # OBSERVATION ERROR 2018+
-       cwp_stddev = 0.0225
+      # BASELINE OBSERVATION ERROR 2018+
+      # cwp_stddev = 0.0225
+       cwp_stddev = cwp_stddev0   #2023
 
        #### DAYTIME CWP = 0
        sat_zeros = 0
        if (( cwptemp <= lwp_min2) and (szatemp < 81.0) and (szatemp >= 0.0) ) :
             sat_zeros = (aa % cwp_clear_thin) + (bb % cwp_clear_thin) #thin cwp=0 observations
 
-            #print cwptemp, szatemp, phasetemp
             if sat_zeros == 0: 
               cwp_out[cc] = 0.0
               cep_out[cc] = 500.0  #pressure height of CWP retrieval
@@ -457,7 +469,7 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
               cwp_phase[cc] = 0
               cwp_lon[cc] = mlon[aa,bb]
               cwp_lat[cc] = mlat[aa,bb]
-              cwp_err[cc] = 0.0225
+              cwp_err[cc] = cwp_stddev0
               cc=cc+1
               count_cwp0 += 1
 
@@ -467,7 +479,7 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
        #      print "MISSING CLEAR", cc,cwptemp, cleartemp, lon, lat, szatemp
 
        #LWP
-       if ((lwptemp > lwp_min) and (szatemp < 81.0) and (szatemp > 0.0) ):
+       if ((lwptemp > lwp_min) and (szatemp < 81.0) and (szatemp > 0.0) and (iwptemp < iwp_min) ):
             cwp_out[cc] = lwptemp
             cep_out[cc] = ceptemp
             ctp_out[cc] = ctptemp
@@ -476,9 +488,9 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
             cwp_lon[cc] = mlon[aa,bb]
             cwp_lat[cc] = mlat[aa,bb]  
             
-            if lwptemp >= 0.025 and lwptemp < 0.2:
+            if lwptemp >= 0.025 and lwptemp < 0.18:
                cwp_stddev = 0.05
-            if lwptemp >= 0.2 and lwptemp < 2.0:
+            if lwptemp >= 0.18 and lwptemp < 2.0:
                cwp_stddev = lwptemp * 0.35
             if lwptemp >= 2.0:
                cwp_stddev = 0.75
@@ -489,35 +501,35 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
             #print cwptemp, szatemp, phasetemp
             
        # INSERT ZEROS ABOVE LOW LEVEL CLOUDS
-       if ((lwptemp > lwp_min) and (szatemp < 81.0) and (szatemp > 0.0) and (ctptemp < 700.) ):     
-           sat_zeros = (aa % cwp_clear_thin) + (bb % cwp_clear_thin)        
+#       if ((lwptemp > lwp_min) and (szatemp < 81.0) and (szatemp > 0.0) and (ctptemp < 700.) ):     
+#           sat_zeros = (aa % cwp_clear_thin) + (bb % cwp_clear_thin)        
 
-           if sat_zeros == 0: 
-             cwp_out[cc] = 0.0
-             cep_out[cc] = 400.0  #pressure height of CWP retrieval
-             ctp_out[cc] = -999.9
-             cbp_out[cc] = 9999.9
-             cwp_phase[cc] = 6
-             cwp_lon[cc] = mlon[aa,bb]
-             cwp_lat[cc] = mlat[aa,bb] 
-             cwp_err[cc] = 0.0225
-             cc=cc+1
-             count_lwp0 += 1     
+#           if sat_zeros == 0: 
+#             cwp_out[cc] = 0.0
+#             cep_out[cc] = 300.0  #pressure height of CWP retrieval
+#             ctp_out[cc] = -999.9
+#             cbp_out[cc] = 9999.9
+#             cwp_phase[cc] = 6
+#             cwp_lon[cc] = mlon[aa,bb]
+#             cwp_lat[cc] = mlat[aa,bb] 
+#             cwp_err[cc] = cwp_stddev0
+#             cc=cc+1
+#             count_lwp0 += 1     
 
-       #IWP
+       #IWP (for obs purposes, CWP = IWP)
        if ((iwptemp > iwp_min) and (szatemp < 81.0) and (szatemp > 0.0) ) :
-            cwp_out[cc] = iwptemp
+            cwp_out[cc] = cwptemp
             cep_out[cc] = ceptemp
             ctp_out[cc] = ctptemp
             cbp_out[cc] = cbptemp      
             cwp_phase[cc] = 2 
             cwp_lon[cc] = mlon[aa,bb]
             cwp_lat[cc] = mlat[aa,bb]  
-            if iwptemp >= 0.025 and iwptemp < 0.2:
+            if cwptemp >= 0.025 and cwptemp < 0.18:
                cwp_stddev = 0.05
-            if iwptemp >= 0.2 and iwptemp < 2.0:
-               cwp_stddev = iwptemp * 0.35
-            if iwptemp >= 2.0:
+            if iwptemp >= 0.18 and cwptemp < 2.0:
+               cwp_stddev = cwptemp * 0.35
+            if cwptemp >= 2.0:
                cwp_stddev = 0.75
 		       
             cwp_err[cc] = cwp_stddev 
@@ -526,10 +538,10 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
             #print cwptemp, szatemp, phasetemp
 
        #### NIGHT TIME RETRIEVALS
-       if ((cwptemp <= lwp_min2) and (szatemp >= 82.0) and (szatemp > 0.0)) :
-            sat_zeros = (aa % cwp_clear_thin) + (bb % cwp_clear_thin)        
+       if ((cwptemp <= lwp_min2) and (szatemp >= 82.0) and (szatemp > 0.0) and (iwptemp < iwp_min)) :
+            night_zeros = (aa % cwp_clear_thin) + (bb % cwp_clear_thin)        
 
-            if sat_zeros == 0: 
+            if night_zeros == 0: 
               cwp_out[cc] = 0.0
               cep_out[cc] = 500.0  #pressure height of CWP retrieval
               ctp_out[cc] = -999.9
@@ -537,22 +549,22 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
               cwp_phase[cc] = 3
               cwp_lon[cc] = mlon[aa,bb]
               cwp_lat[cc] = mlat[aa,bb] 
-              cwp_err[cc] = 0.0225            
+              cwp_err[cc] = cwp_stddev0         
               cc=cc+1
               count_cwp0_ngt += 1
 
        # LWP
        if ((lwptemp > lwp_min) and (szatemp >= 82.0) and (szatemp > 0.0) ):
-            cwp_out[cc] = cwptemp
+            cwp_out[cc] = lwptemp
             cep_out[cc] = ceptemp
             ctp_out[cc] = ctptemp
             cbp_out[cc] = cbptemp      
             cwp_phase[cc] = 4  
             cwp_lon[cc] = mlon[aa,bb]
             cwp_lat[cc] = mlat[aa,bb] 
-            if lwptemp >= 0.025 and lwptemp < 0.2:
+            if lwptemp >= 0.025 and lwptemp < 0.18:
                cwp_stddev = 0.05
-            if lwptemp >= 0.2 and lwptemp < 2.0:
+            if lwptemp >= 0.18 and lwptemp < 2.0:
                cwp_stddev = lwptemp * 0.35
             if lwptemp >= 2.0:
                cwp_stddev = 0.75 
@@ -562,20 +574,20 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
             count_lwp_ngt += 1
 
        # INSERT ZEROS ABOVE LOW LEVEL CLOUDS
-       if ((lwptemp > lwp_min) and (szatemp >= 82.0) and (szatemp > 0.0) and (ctptemp < 700.) ):  
-           sat_zeros = (aa % cwp_clear_thin) + (bb % cwp_clear_thin)        
+#       if ((lwptemp > lwp_min) and (szatemp >= 82.0) and (szatemp > 0.0) and (ctptemp < 700.) ):  
+#           night_zeros = (aa % cwp_clear_thin) + (bb % cwp_clear_thin)        
 
-           if sat_zeros == 0:    
-             cwp_out[cc] = 0.0
-             cep_out[cc] = 400.0  #pressure height of CWP retrieval
-             ctp_out[cc] = -999.9
-             cbp_out[cc] = 9999.9
-             cwp_phase[cc] = 7
-             cwp_lon[cc] = mlon[aa,bb]
-             cwp_lat[cc] = mlat[aa,bb] 
-             cwp_err[cc] = 0.0225
-             cc=cc+1
-             count_lwp0_ngt += 1     
+#           if night_zeros == 0:    
+#             cwp_out[cc] = 0.0
+#             cep_out[cc] = 300.0  #pressure height of CWP retrieval
+#             ctp_out[cc] = -999.9
+#             cbp_out[cc] = 9999.9
+#             cwp_phase[cc] = 7
+#             cwp_lon[cc] = mlon[aa,bb]
+#             cwp_lat[cc] = mlat[aa,bb] 
+#             cwp_err[cc] = 0.0225
+#             cc=cc+1
+#             count_lwp0_ngt += 1     
 
        # IWP
        if ((iwptemp > iwp_min)  and (szatemp >= 82.0) and (szatemp > 0.0) ) :
@@ -586,10 +598,10 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
             cwp_phase[cc] = 5
             cwp_lon[cc] = mlon[aa,bb]
             cwp_lat[cc] = mlat[aa,bb]  
-            if iwptemp >= 0.025 and iwptemp < 0.2:
+            if cwptemp >= 0.025 and cwptemp < 0.18:
                cwp_stddev = 0.05
-            if iwptemp >= 0.2 and iwptemp < 2.0:
-               cwp_stddev = iwptemp * 0.35
+            if iwptemp >= 0.18 and cwptemp < 2.0:
+               cwp_stddev = cwptemp * 0.35
             if iwptemp >= 2.0:
                cwp_stddev = 0.75
             cwp_err[cc] = cwp_stddev               
@@ -622,7 +634,7 @@ if (cc > 1):
   #outfile = '/home/Thomas.Jones/GOES16_PROCESS/test_data/tb_obs.nc'
   sout = Dataset(satoutfile, "w")
 
-  sout.setncattr('satellite', 'GOES-16')
+  sout.setncattr('satellite', sat)
   sout.setncattr('year', year)
   sout.setncattr('month', month)
   sout.setncattr('day', day)
