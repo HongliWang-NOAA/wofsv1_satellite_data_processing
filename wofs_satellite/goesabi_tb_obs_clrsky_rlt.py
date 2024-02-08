@@ -444,7 +444,7 @@ temptb133 = np.zeros(shape=(nx,ny))*np.nan
 #### LOOP THROUGH DATA AND SUBSET RADIANCES FOR MODEL DOMAIN
 for ii in range(0, len(tb62[:,0])):
     for jj in range(0, len(tb62[0,:])):
-        #if ((cot[ii,jj] <= 0.00001) and (lats[ii,jj] > minlat) and (lats[ii,jj] < maxlat) and (lons[ii,jj] > minlon) and (lons[ii,jj] < maxlon)):
+        #if ( ((cth_scale[ii,jj] <= 0.0) or (cth_scale[ii,jj] > 25.0)) and (lats[ii,jj] > minlat) and (lats[ii,jj] < maxlat) and (lons[ii,jj] > minlon) and (lons[ii,jj] < maxlon)):
         if ((lats[ii,jj] > minlat) and (lats[ii,jj] < maxlat) and (lons[ii,jj] > minlon) and (lons[ii,jj] < maxlon)):
 		    
             temptb39[ii,jj]=tb39[ii,jj]
@@ -512,9 +512,7 @@ tb133_5km = pyresample.kd_tree.resample_custom(orig_def, temptb133[5:nx,5:ny], \
 
 cth_5km = pyresample.kd_tree.resample_custom(cth_def, cth_scale[5:cth_nx,5:cth_ny], \
                           targ_def, radius_of_influence=10000, neighbours=10,\
-                          weight_funcs=wf, fill_value=None)
-
-
+                          weight_funcs=wf, fill_value=0.0)
 
 
 
@@ -560,10 +558,15 @@ for ii in range(1, len(tb39_5km[:,0])-2, thin):
       #boxcot3=cot_5km[ii-1,jj-1]+cot_5km[ii,jj-1]+cot_5km[ii+1,jj-1]+cot_5km[ii-1,jj]+ \
       #        cot_5km[ii,jj]+cot_5km[ii+1,jj]+cot_5km[ii-1,jj+1]+cot_5km[ii,jj+1]+cot_5km[ii+1,jj+1]
       # 
-      
-      #if ((tb62_5km[ii,jj] > 100.0) and (tb62_5km[ii,jj] < 400.0) and boxcot3 < 0.1): 
-      if ( (tb62_5km[ii,jj] > 100.0) and (tb62_5km[ii,jj] < 400.0) ):
-       print(ii, jj, cth_5km[ii,jj], tb73_5km[ii,jj])
+
+      if (cth_5km[ii,jj] > 0.01 and cth_5km[ii,jj]/1000. < 25.):
+         iscloud=1
+      else:
+         iscloud=0
+
+      #if ((tb62_5km[ii,jj] > 100.0) and (tb62_5km[ii,jj] < 400.0) ): 
+      if ( (tb62_5km[ii,jj] > 100.0) and (tb62_5km[ii,jj] < 400.0) and (iscloud == 0) ):
+       #print(ii, jj, cth_5km[ii,jj], tb73_5km[ii,jj])
        lat_out[nn]=mlat[ii,jj]
        lon_out[nn]=mlon[ii,jj]
        #time_out[nn]=time[ii,jj]
@@ -652,7 +655,7 @@ for ii in range(1, len(tb39_5km[:,0])-2, thin):
 ## WRITE OBSERVATIONS TO OUTPUT FILE (to be used by read_goesabi_netcdf.f90 in GSI)
 if (nn > 1):
 
-  ofile = str(year)+str(month)+str(day)+str(obstime)+"_"+str(osat)+"_TB_ALLSKY.nc"
+  ofile = str(year)+str(month)+str(day)+str(obstime)+"_"+str(osat)+"_TB_CLRSKY.nc"
   outfile = os.path.join(out_dir, ofile)
   #outfile = '/home/Thomas.Jones/GOES16_PROCESS/test_data/tb_obs.nc'
   fout = Dataset(outfile, "w")
@@ -752,11 +755,5 @@ if (nn > 1):
 #wv_plot.var1_title = 'GOES-16 Upper-level Water Vapor (6.9 um) Tb (K)   '
 #sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb69[:,:], dumbvar[:,:], '0', init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
 
-#x, y = map(mlon[:], mlat[:])
-#xx, yy = map.makegrid(mlat.shape[1], mlat.shape[0], returnxy=True)[2:4]   #equidistant x/y grid for streamline plots
 
-#dumbvar = np.zeros((mlat.shape[0], mlat.shape[1]))
-#wv_plot.name = 'g16wv_5km'
-#wv_plot.var1_title = 'GOES-16 Upper-level Water Vapor (6.9 um) Tb (K)   '
-#sat_plot(map, fig, ax1, ax2, ax3, x, y, wv_plot, tb62_5km[:,:], dumbvar[:,:], '0', init_label, valid_label, domain, plotdir, '', '', '', 5, 0, spec='False', quiv='False')
 
