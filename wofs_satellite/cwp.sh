@@ -61,7 +61,7 @@ fi
 
 if [ ! -s "$FILE" ]; then
     mv $data_directory/${SFILE} $data_directory/cwp_larc.nc
-    python goesabi_larccwp_obs_rlt.py -d $data_directory -w $wrf_file_path -o $data_directory/ -a ${obstime} -t 2 -s ${sat}
+    python goesabi_larccwp_obs_rlt.py -d $data_directory -w $wrf_file_path -o $data_directory/ -a ${obstime} -t 1 -s ${sat}
 
     cd $data_directory
 
