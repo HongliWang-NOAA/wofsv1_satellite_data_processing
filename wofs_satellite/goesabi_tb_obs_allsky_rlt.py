@@ -44,6 +44,7 @@ sat = options.sat
 
 # GRID SPACING
 gspace = 0.05 #5 km
+gspace_m = 5000
 
 # FUDGE FACTOR
 fudge = 0.15 #Degrees from WRF domain edge
@@ -96,6 +97,12 @@ cen_lon = wrfin.CEN_LON
 stand_lon = wrfin.STAND_LON
 true_lat1 = wrfin.TRUELAT1
 true_lat2 = wrfin.TRUELAT2
+
+# CREATE OBS GRID
+nlons = int((len(wrfin.dimensions['west_east']) * wrfin.getncattr('DX'))  /  gspace_m)
+nlats = int((len(wrfin.dimensions['south_north']) * wrfin.getncattr('DY'))  /  gspace_m)
+print(f'Creating {nlons}x{nlats} grid.')
+
 wrfin.close()
 
 maxlat = np.max(wlat)-fudge
@@ -107,10 +114,6 @@ print("maxlon: ", maxlon)
 print("minlon: ", minlon)
 print("maxlat: ", maxlat)
 print("minlat: ", minlat)
-
-# CREATE OBS GRID
-nlons = 500
-nlats = 500
 
 mlon = np.zeros(shape=(nlons,nlats))*np.nan
 mlat = np.zeros(shape=(nlons,nlats))*np.nan

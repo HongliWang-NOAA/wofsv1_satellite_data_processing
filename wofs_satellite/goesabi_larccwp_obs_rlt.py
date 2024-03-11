@@ -43,6 +43,7 @@ sat = options.sat
 
 # GRID SPACING
 gspace = 0.05 #5 km
+gspace_m = 5000
 
 # FUDGE FACTOR
 fudge = 0.15  #0.15 degrees from boundary
@@ -102,6 +103,12 @@ cen_lon = wrfin.CEN_LON
 stand_lon = wrfin.STAND_LON
 true_lat1 = wrfin.TRUELAT1
 true_lat2 = wrfin.TRUELAT2
+
+# CREATE 5 km SMOOTHED GRID
+nlons = int((len(wrfin.dimensions['west_east']) * wrfin.getncattr('DX'))  /  gspace_m)
+nlats = int((len(wrfin.dimensions['south_north']) * wrfin.getncattr('DY'))  /  gspace_m)
+print(f'Creating {nlons}x{nlats} grid.')
+
 wrfin.close()
 
 # Subtract fudge factor from WRF domain to remove obs near boundary
@@ -114,11 +121,6 @@ print("maxlon: ", maxlon)
 print("minlon: ", minlon)
 print("maxlat: ", maxlat)
 print("minlat: ", minlat)
-
-
-# CREATE 5 km SMOOTHED GRID
-nlons = 350
-nlats = 350
 
 mlon = np.zeros(shape=(nlons,nlats))*np.nan
 mlat = np.zeros(shape=(nlons,nlats))*np.nan
