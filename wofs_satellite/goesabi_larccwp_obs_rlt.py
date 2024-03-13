@@ -105,8 +105,8 @@ true_lat1 = wrfin.TRUELAT1
 true_lat2 = wrfin.TRUELAT2
 
 # CREATE 5 km SMOOTHED GRID
-nlons = int((len(wrfin.dimensions['west_east']) * wrfin.getncattr('DX'))  /  gspace_m)
-nlats = int((len(wrfin.dimensions['south_north']) * wrfin.getncattr('DY'))  /  gspace_m)
+nlons = 220 #int((len(wrfin.dimensions['west_east']) * wrfin.getncattr('DX'))  /  gspace_m)
+nlats = 220 #int((len(wrfin.dimensions['south_north']) * wrfin.getncattr('DY'))  /  gspace_m)
 print(f'Creating {nlons}x{nlats} grid.')
 
 wrfin.close()
