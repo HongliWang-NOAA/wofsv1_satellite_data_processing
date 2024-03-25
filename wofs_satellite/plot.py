@@ -66,8 +66,9 @@ if __name__ == "__main__":
     for v in ['vis', 'ir112', 'wv62', 'wv69', 'wv73']: 
         d = resample((plotter.original_lats_, plotter.original_lons_), 
                     (data[v]['lats'], data[v]['lons']), [data[v]['data']])
+        
         plotter.plot(var_name=v, 
-            pmesh_data=d[0], save_name = f'{v}__{gdate}.png', add_sharpness=False)
+            pmesh_data=d[0], save_name = f'{v}__{gdate}.png', add_sharpness=False, color_contf_kws  = {'alpha' : 0.9})
         
     # Close the figure.
     plotter.close_figure()
