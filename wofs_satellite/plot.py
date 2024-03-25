@@ -55,6 +55,11 @@ if __name__ == "__main__":
 
     files = [os.path.join(tb_dir, f) for f in ['ch02_TB.nc', 'ch08_TB.nc', 'ch09_TB.nc', 'ch10_TB.nc', 'ch14_TB.nc']] 
 
+    for file in files:
+        if not os.path.exists(file):
+            print(f"PLOTTING ERROR: {file} does not exist. Exiting early.")
+            exit(0)
+
     # Initialize the plotter. 
     plotter = WoFSPlotter(file_path=geodir, outdir=plotdir, valid_time = valid_time, 
         timestep_index = 0, dt=5)
