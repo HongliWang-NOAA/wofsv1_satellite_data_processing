@@ -25,9 +25,13 @@ dt = datetime.datetime.strptime(options.date, "%Y%m%d%H%M")
 
 # FIND FILES ON AMAZON SERVER
 fs = s3fs.S3FileSystem(anon=True)
-path = 'noaa-goes'+sat+'/ABI-L2-'+dtype+'/'+f'{dt:%Y/%j/%H}'+'/'
-#files = np.array(fs.ls('noaa-goes17/ABI-L2-ACHAC/2020/200/00/'))
-files = np.array(fs.ls(path))
+# today
+files = np.array(fs.ls(f'noaa-goes{sat}/ABI-L2-{dtype}/{dt:%Y/%j/%H}/'))
+
+if dt.time() < datetime.time(0, 10):
+      yday = dt - datetime.timedelta(hours=1)
+      files = np.concatenate((files, np.array(fs.ls(f'noaa-goes{sat}/ABI-L2-{dtype}/{yday:%Y/%j/%H}/', detail = False, refresh = True))))
+
 print(files)
 
 start = dt - datetime.timedelta(minutes = int(options.range) - 2)
@@ -40,27 +44,28 @@ for v in files:
       if m != None:
             d = datetime.datetime.strptime(m.group('year') + "-" + m.group('day') + '-' + m.group('hour') + m.group('minute'), "%Y-%j-%H%M")
             if start <= d and d <= end:
-                  valid_files.append((d, v.split('/')[-1]))
+                  valid_files.append((d, v))
 
 # sort the files
 sorted_files = sorted(valid_files, key = itemgetter(0), reverse = True)
 
 # top (most recent within time block) to download
 file_to_download = next(iter(sorted_files))[1]
+local_file = file_to_download.split('/')[-1]
 
 # GET NEWEST FILE
-fs.get(path+file_to_download, file_to_download)
-print(file_to_download)
+fs.get(file_to_download, local_file)
+print(local_file)
 
 ##################### Process RENAME SAT Files ########################
  
 domain=" "
 
 try:							
-      fin = netCDF4.Dataset(file_to_download, "r")
-      print("Opening %s \n" % file_to_download)
+      fin = netCDF4.Dataset(local_file, "r")
+      print("Opening %s \n" % local_file)
 except:
-      print("%s does not exist! \n" %file_to_download)
+      print("%s does not exist! \n" %local_file)
       sys.exit(1)
 
 domain = fin.scene_id
@@ -82,7 +87,7 @@ print(syear, smonth, sday, shour, sminute, ssecond)
 #   outfile = outdir+satellite+"_"+domain+"_"+dtype+"_"+date+ssecond+".nc"
 outfile = outdir+satellite+"_"+domain+"_"+dtype+"_"+syear+smonth+sday+shour+sminute+ssecond+".nc"
 print(outfile)
-cmmd = "mv "+file_to_download+" "+os.path.join(outdir, "cth.nc")
+cmmd = "mv "+local_file+" "+os.path.join(outdir, "cth.nc")
 
 os.system(cmmd) 
 

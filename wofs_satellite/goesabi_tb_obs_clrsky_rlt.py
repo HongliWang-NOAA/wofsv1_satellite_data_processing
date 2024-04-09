@@ -656,7 +656,7 @@ for ii in range(1, len(tb39_5km[:,0])-2, thin):
 
 
 ## WRITE OBSERVATIONS TO OUTPUT FILE (to be used by read_goesabi_netcdf.f90 in GSI)
-if (nn > 1):
+if (nn > 10):
 
   ofile = str(year)+str(month)+str(day)+str(obstime)+"_"+str(osat)+"_TB_CLRSKY.nc"
   outfile = os.path.join(out_dir, ofile)
