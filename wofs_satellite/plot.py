@@ -72,8 +72,11 @@ if __name__ == "__main__":
         d = resample((plotter.original_lats_, plotter.original_lons_), 
                     (data[v]['lats'], data[v]['lons']), [data[v]['data']])
         
-        plotter.plot(var_name=v, 
-            pmesh_data=d[0], save_name = f'{v}__{gdate}.png', add_sharpness=False, color_contf_kws  = {'alpha' : 0.9})
-        
+        if ('vis' in v):
+            plotter.plot(var_name=v, 
+                pmesh_data=d[0], save_name = f'{v}__{gdate}.png', add_sharpness=False, color_contf_kws  = {'alpha' : 1.0})
+        else:
+            plotter.plot(var_name=v, 
+                pmesh_data=d[0], save_name = f'{v}__{gdate}.png', add_sharpness=False, color_contf_kws  = {'alpha' : 0.9})
     # Close the figure.
     plotter.close_figure()
