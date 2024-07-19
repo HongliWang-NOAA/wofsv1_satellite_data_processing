@@ -23,6 +23,9 @@ from datetime import *
 from math import pi, sin, cos, sqrt, acos, asin
 from optparse import OptionParser
 
+from pygeodesy.sphericalNvector import LatLon
+from pygeodesy.points import isenclosedBy
+
 ####################################### Parse Options: ######################################################
 
 parser = OptionParser()
@@ -46,8 +49,7 @@ sat = options.sat
 gspace = 0.05 #5 km
 gspace_m = 5000
 
-# FUDGE FACTOR
-fudge = 0.15 #Degrees from WRF domain edge
+_domain_gridpoint_margin = 7
 
 # DEFINE PROJECTION FOR GOES
 if ( sat == 'G16'): 
@@ -98,6 +100,16 @@ stand_lon = wrfin.STAND_LON
 true_lat1 = wrfin.TRUELAT1
 true_lat2 = wrfin.TRUELAT2
 
+inner_domain = LatLon(wlat[0,_domain_gridpoint_margin,_domain_gridpoint_margin], wlon[0,_domain_gridpoint_margin,_domain_gridpoint_margin]), \
+   LatLon(wlat[0,_domain_gridpoint_margin,-_domain_gridpoint_margin], wlon[0,_domain_gridpoint_margin,-_domain_gridpoint_margin]), \
+   LatLon(wlat[0,-_domain_gridpoint_margin,-_domain_gridpoint_margin], wlon[0,-_domain_gridpoint_margin,-_domain_gridpoint_margin]), \
+   LatLon(wlat[0,-_domain_gridpoint_margin,_domain_gridpoint_margin], wlon[0,-_domain_gridpoint_margin,_domain_gridpoint_margin])
+
+print(f"Bottom left inner domain: {inner_domain[0]}")
+print(f"Bottom right inner domain: {inner_domain[1]}")
+print(f"Top right inner domain: {inner_domain[2]}")
+print(f"Top left inner domain: {inner_domain[3]}")
+
 # CREATE OBS GRID
 nlons = 220 #int((len(wrfin.dimensions['west_east']) * wrfin.getncattr('DX'))  /  gspace_m)
 nlats = 220 #int((len(wrfin.dimensions['south_north']) * wrfin.getncattr('DY'))  /  gspace_m)
@@ -105,10 +117,10 @@ print(f'Creating {nlons}x{nlats} grid.')
 
 wrfin.close()
 
-maxlat = np.max(wlat)-fudge
-minlat = np.min(wlat)+fudge
-maxlon = np.max(wlon)-fudge
-minlon = np.min(wlon)+fudge
+maxlat = np.max(wlat)
+minlat = np.min(wlat)
+maxlon = np.max(wlon)
+minlon = np.min(wlon)
 
 print("maxlon: ", maxlon)
 print("minlon: ", minlon)
@@ -554,9 +566,19 @@ sat_x       =   sat_h * np.cos(sat_lat_m) * np.cos(sat_lon)
 sat_y       =   sat_h * np.cos(sat_lat_m) * np.sin(sat_lon)
 sat_z       =   sat_h * np.sin(sat_lat_m)
 
+border_obs_skipped = 0
+
 for ii in range(1, len(tb39_5km[:,0])-2, thin):
     for jj in range(1, len(tb39_5km[0,:])-2, thin):
     
+      tlat=mlat[ii,jj]
+      tlon=mlon[ii,jj]
+
+      point = LatLon(tlat, tlon)
+      if not isenclosedBy(point, inner_domain):
+         border_obs_skipped += 1
+         continue
+
     #HALO...remove observations within 5 km of clouds it total COT > 0.1
       #boxcot3=cot_5km[ii-1,jj-1]+cot_5km[ii,jj-1]+cot_5km[ii+1,jj-1]+cot_5km[ii-1,jj]+ \
       #        cot_5km[ii,jj]+cot_5km[ii+1,jj]+cot_5km[ii-1,jj+1]+cot_5km[ii,jj+1]+cot_5km[ii+1,jj+1]
@@ -654,6 +676,8 @@ for ii in range(1, len(tb39_5km[:,0])-2, thin):
 
        nn=nn+1
 
+
+print(f"\n Number of obs skipped outside domain: {border_obs_skipped}")
 
 ## WRITE OBSERVATIONS TO OUTPUT FILE (to be used by read_goesabi_netcdf.f90 in GSI)
 if (nn > 10):

@@ -21,6 +21,9 @@ from datetime import *
 from math import pi, cos, sqrt
 from optparse import OptionParser
 
+from pygeodesy.sphericalNvector import LatLon
+from pygeodesy.points import isenclosedBy
+
 ####################################### Parse Options: ######################################################
 
 parser = OptionParser()
@@ -45,8 +48,7 @@ sat = options.sat
 gspace = 0.05 #5 km
 gspace_m = 5000
 
-# FUDGE FACTOR
-fudge = 0.15  #0.15 degrees from boundary
+_domain_gridpoint_margin = 7
 
 # MIN THRESHOLDS
 lwp_min = 0.05
@@ -104,6 +106,17 @@ stand_lon = wrfin.STAND_LON
 true_lat1 = wrfin.TRUELAT1
 true_lat2 = wrfin.TRUELAT2
 
+inner_domain = LatLon(wlat[0,_domain_gridpoint_margin,_domain_gridpoint_margin], wlon[0,_domain_gridpoint_margin,_domain_gridpoint_margin]), \
+   LatLon(wlat[0,_domain_gridpoint_margin,-_domain_gridpoint_margin], wlon[0,_domain_gridpoint_margin,-_domain_gridpoint_margin]), \
+   LatLon(wlat[0,-_domain_gridpoint_margin,-_domain_gridpoint_margin], wlon[0,-_domain_gridpoint_margin,-_domain_gridpoint_margin]), \
+   LatLon(wlat[0,-_domain_gridpoint_margin,_domain_gridpoint_margin], wlon[0,-_domain_gridpoint_margin,_domain_gridpoint_margin])
+
+print(f"Bottom left inner domain: {inner_domain[0]}")
+print(f"Bottom right inner domain: {inner_domain[1]}")
+print(f"Top right inner domain: {inner_domain[2]}")
+print(f"Top left inner domain: {inner_domain[3]}")
+
+
 # CREATE 5 km SMOOTHED GRID
 nlons = 220 #int((len(wrfin.dimensions['west_east']) * wrfin.getncattr('DX'))  /  gspace_m)
 nlats = 220 #int((len(wrfin.dimensions['south_north']) * wrfin.getncattr('DY'))  /  gspace_m)
@@ -111,11 +124,11 @@ print(f'Creating {nlons}x{nlats} grid.')
 
 wrfin.close()
 
-# Subtract fudge factor from WRF domain to remove obs near boundary
-maxlat = np.max(wlat)-fudge
-minlat = np.min(wlat)+fudge
-maxlon = np.max(wlon)-fudge
-minlon = np.min(wlon)+fudge
+
+maxlat = np.max(wlat)
+minlat = np.min(wlat)
+maxlon = np.max(wlon)
+minlon = np.min(wlon)
 
 print("maxlon: ", maxlon)
 print("minlon: ", minlon)
@@ -430,11 +443,19 @@ cwp_phase=np.zeros(shape=(nmax_cloud))*np.nan  #0=CWP0, 1=LWP, 2=IWP, 3=CWP0_NGT
 cwp_phase[:] = -999
 cwp_stddev0 = 0.0225    #DEFAULT CWP OBS ERROR
 
+border_obs_skipped = 0
+
 thin=1  #FOR NOW, DON'T THIN ALL OBS
 for aa in range(1, len(sza_5km[:,0])-2, thin):
      for bb in range(1, len(sza_5km[0,:])-2, thin):
       tlat=mlat[aa,bb]
       tlon=mlon[aa,bb]
+
+      point = LatLon(tlat, tlon)
+      if not isenclosedBy(point, inner_domain):
+         border_obs_skipped += 1
+         continue
+
       if (tlat > minlat and tlat < maxlat and tlat > minlat_cwp and tlat < maxlat_cwp and \
           tlon > minlon and tlon < maxlon and tlon > minlon_cwp and tlon < maxlon_cwp):
        szatemp = sza_5km[aa,bb]
@@ -612,7 +633,7 @@ for aa in range(1, len(sza_5km[:,0])-2, thin):
 
 
 
-
+print(f"\n Number of obs skipped outside domain: {border_obs_skipped}")
 print("\n >%s<" % ("=" * 79))
 print("\n  PyDart.CWP->  Total number of OBSs:     %d" % cc)
 print("\n  PyDart.CWP->  Total number of LWP:           %d" % count_lwp)
