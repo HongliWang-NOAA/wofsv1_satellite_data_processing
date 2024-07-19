@@ -16,7 +16,7 @@ ENV PROJ_LIB="${CNDA}/share/proj"
 
 ENV MAMBA_ROOT_PREFIX=/opt/micromamba
 
-RUN apt update && apt install -y curl unzip bzip2 wget pngquant
+RUN apt update && apt install -y curl unzip bzip2 wget pngquant gcc
 
 COPY ./wofs_satellite /opt/wofs/wofs_satellite
 COPY ./environment.yml /opt/wofs
