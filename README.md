@@ -11,3 +11,16 @@ bash create.sh 202402081400 /mnt/c/Joshua/temp/sat/geo_em.d01.nc /mnt/c/Joshua/t
 ```
 
 The path to the WRF input file defaults to the mounted data directory (/mnt/data/wrfinput_d01) if not provided. 
+
+To create multiple satellite observations for a model run at once, use the `create_run.sh` as seen below.
+
+```
+bash create_run.sh [target directory] [satellite number] [start] [end]
+```
+
+The target directory must container the `geo_em.d01.nc` for the model run. 
+### Example usage
+
+```
+bash create_run.sh /mnt/c/Joshua/temp/sat 16 202407231500 202407231800
+```
