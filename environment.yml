@@ -52,6 +52,6 @@ dependencies:
     - pysolar
     - wofs-ml-severe>=1.1.2922
     - ml-workflow>=1.1.2860
-    - wofs
+    - wofs>=20240605.2
     - pygeodesy
   - python=3.9
