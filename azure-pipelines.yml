@@ -17,8 +17,6 @@ variables:
 - group: wofs-pipeline-variables
 - name: vmImageName
   value: 'ubuntu-latest'
-- name: WOFS_VERSION
-  value: ${{ parameters.wofs_package_version }}
 
 stages:
 - stage: Build
@@ -46,7 +44,7 @@ stages:
         tags: |
           $(Build.BuildId)
           latest
-        arguments: '--build-arg INDEX_URL=$(PIP_EXTRA_INDEX_URL) --build-arg WofsPackageVersion=$(WOFS_VERSION)'
+        arguments: '--build-arg INDEX_URL=$(PIP_EXTRA_INDEX_URL)'
 
     - task: Docker@2
       displayName: Publish

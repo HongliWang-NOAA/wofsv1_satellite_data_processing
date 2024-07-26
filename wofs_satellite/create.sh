@@ -9,9 +9,9 @@ mkdir -p $data_directory/TB
 # eval "$(micromamba shell hook --shell=bash)"
 # micromamba activate wofs-satellite
 
-python download_level2.py -o "$data_directory/TB/" -p "ACHAC" -t $cycle_time -s $satellite
+python3 download_level2.py -o "$data_directory/TB/" -p "ACHAC" -t $cycle_time -s $satellite
 
-python download_radiance.py -o "$data_directory/TB/" -p "RadC" -t $cycle_time -s $satellite
+python3 download_radiance.py -o "$data_directory/TB/" -p "RadC" -t $cycle_time -s $satellite
 
 bash cwp.sh $cycle_time $data_directory $wrf_file_path "$satellite"
 
@@ -23,6 +23,6 @@ else
     goesabi="goesabi_tb_obs_allsky_rlt.py"
 fi
 
-python $goesabi -d ${data_directory}/TB -w ${wrf_file_path} -o $data_directory -a ${obstime} -t 1 -s "G$satellite"
+python3 $goesabi -d ${data_directory}/TB -w ${wrf_file_path} -o $data_directory -a ${obstime} -t 1 -s "G$satellite"
 
 python3 -m plot -d ${data_directory}/TB -p ${data_directory} -w ${wrf_file_path} -g $cycle_time

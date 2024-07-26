@@ -5,9 +5,6 @@ WORKDIR /opt/wofs
 ARG INDEX_URL
 ENV PIP_EXTRA_INDEX_URL=$INDEX_URL
 
-ARG WofsPackageVersion
-ENV WOFS_VERSION=$WofsPackageVersion
-
 ENV CNDA=/opt/miniconda
 
 ENV PATH="${CNDA}/bin:${PATH}"

@@ -54,4 +54,4 @@ dependencies:
     - ml-workflow>=1.1.2860
     - wofs>=20240605.2
     - pygeodesy
-  - python=3.9
+  - python=3.10
