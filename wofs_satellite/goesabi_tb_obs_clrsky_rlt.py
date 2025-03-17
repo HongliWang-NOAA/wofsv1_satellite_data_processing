@@ -52,16 +52,18 @@ gspace_m = 5000
 _domain_gridpoint_margin = 7
 
 # DEFINE PROJECTION FOR GOES
-if ( sat == 'G16'): 
+if ( sat == 'G16'):    ## END ON MARCH 17, 2025
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-75.2', sweep='x')
    osat = 'GOES16'
-if ( sat == 'G17'):             
+if ( sat == 'G17'):    ## END ON MARCH 2023         
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-137.2', sweep='x')
    osat = 'GOES17'
-if ( sat == 'G18'):
+if ( sat == 'G18'):  ## WEST
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-137.2', sweep='x')
    osat = 'GOES18'
-
+if ( sat == 'G19'):  ## EAST
+#   p = Proj(proj='geos', h='35786023.0', lon_0='-75.2', sweep='x')
+   osat = 'GOES19'
 
 # INPUT FILES
 file7 = os.path.join(tb_dir, 'ch07_TB.nc')
@@ -78,15 +80,8 @@ cthfile = os.path.join(tb_dir, 'cth.nc')
 
 wrffile = wrf_dir
 
+# example filename
 #file7 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C07_G16_s20181162307.nc'
-#file8 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C08_G16_s20181162307.nc'
-#file9 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C09_G16_s20181162307.nc'
-#file10 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C10_G16_s20181162307.nc'
-#file11 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C11_G16_s20181162307.nc'
-#file12 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C12_G16_s20181162307.nc'
-#file13 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C13_G16_s20181162307.nc'
-#file14 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C14_G16_s20181162307.nc'
-
 
 # READ IN WRFINPUT FILE FOR DOMAIN BOUNDARIES
 wrfin = Dataset(wrffile, "r")
