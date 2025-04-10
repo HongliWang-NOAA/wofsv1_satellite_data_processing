@@ -59,19 +59,22 @@ iwp_min = 0.05
 deg2rad = pi/180.0
 rad2deg = 1.0/deg2rad
 sat_lat = 0.02 * deg2rad
-if ( sat  == 'G16'):
+if ( sat  == 'G16'):       ### END ON MARCH 17 2025
    sat_lon = -75.18 * deg2rad  #G16
    p = Proj(proj='geos', h='35786023.0', lon_0=sat_lon*rad2deg, sweep='x')
    osat = 'GOES16'
-if ( sat == 'G17'):
+if ( sat == 'G17'):        ### END ON MARCH 2023
    sat_lon = -137.2 * deg2rad  #G17
    p = Proj(proj='geos', h='35786023.0', lon_0=sat_lon*rad2deg, sweep='x')
    osat = 'GOES17'
 if ( sat == 'G18'):
-   sat_lon = -137.2 * deg2rad  #G17
+   sat_lon = -137.2 * deg2rad  #G18  WEST
    p = Proj(proj='geos', h='35786023.0', lon_0=sat_lon*rad2deg, sweep='x')
    osat = 'GOES18'
-
+if ( sat == 'G19'):
+   sat_lon = -75.18 * deg2rad  #G19  EAST
+   p = Proj(proj='geos', h='35786023.0', lon_0=sat_lon*rad2deg, sweep='x')
+   osat = 'GOES19'
 
 sat_h = 35786.023       #km
 eqr_rad = 6378.137

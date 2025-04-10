@@ -78,15 +78,8 @@ cthfile = os.path.join(tb_dir, 'cth.nc')
 
 wrffile = wrf_dir
 
+# example filename
 #file7 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C07_G16_s20181162307.nc'
-#file8 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C08_G16_s20181162307.nc'
-#file9 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C09_G16_s20181162307.nc'
-#file10 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C10_G16_s20181162307.nc'
-#file11 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C11_G16_s20181162307.nc'
-#file12 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C12_G16_s20181162307.nc'
-#file13 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C13_G16_s20181162307.nc'
-#file14 = '/home/Thomas.Jones/GOES16_PROCESS/test_data/OR_ABI-L1b-RadC-M3C14_G16_s20181162307.nc'
-
 
 # READ IN WRFINPUT FILE FOR DOMAIN BOUNDARIES
 wrfin = Dataset(wrffile, "r")
