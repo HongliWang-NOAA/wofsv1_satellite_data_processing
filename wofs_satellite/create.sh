@@ -1,12 +1,10 @@
 cycle_time=$1 
 wrf_file_path=${2-/mnt/data/wrfinput_d01} # 2nd parameter is the path to the WRF input file; defaults to the data directory if nt provided
 data_directory=${3-/mnt/data}
-satellite=${4-16}
+satellite=${4-19}
 use_clr_sky=${5-1}
 
 mkdir -p $data_directory/TB
-
-source ~/.bashrc
 
 # eval "$(micromamba shell hook --shell=bash)"
 # micromamba activate wofs-satellite

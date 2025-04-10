@@ -40,4 +40,4 @@ RUN mkdir -p ~/miniconda3 && \
 
 WORKDIR /opt/wofs/wofs_satellite
 
-ENTRYPOINT ["bash", "--login", "create.sh"]
+ENTRYPOINT ["bash", "--login", "source ~/miniconda3/bin/activate && conda activate wofs-satellite && source create.sh"]
