@@ -52,18 +52,16 @@ gspace_m = 5000
 _domain_gridpoint_margin = 7
 
 # DEFINE PROJECTION FOR GOES
-if ( sat == 'G16'):    ## END ON MARCH 17, 2025
+#if ( sat == 'G16'): 
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-75.2', sweep='x')
-   osat = 'GOES16'
-if ( sat == 'G17'):    ## END ON MARCH 2023         
+#   osat = 'GOES16'
+#if ( sat == 'G17'):             
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-137.2', sweep='x')
-   osat = 'GOES17'
-if ( sat == 'G18'):  ## WEST
+#   osat = 'GOES17'
+#if ( sat == 'G18'):
 #   p = Proj(proj='geos', h='35786023.0', lon_0='-137.2', sweep='x')
-   osat = 'GOES18'
-if ( sat == 'G19'):  ## EAST
-#   p = Proj(proj='geos', h='35786023.0', lon_0='-75.2', sweep='x')
-   osat = 'GOES19'
+#   osat = 'GOES18'
+osat = sat.replace("G", "GOES")
 
 # INPUT FILES
 file7 = os.path.join(tb_dir, 'ch07_TB.nc')
