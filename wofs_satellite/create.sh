@@ -6,6 +6,8 @@ use_clr_sky=${5-1}
 
 mkdir -p $data_directory/TB
 
+source ~/.bashrc
+
 # eval "$(micromamba shell hook --shell=bash)"
 # micromamba activate wofs-satellite
 
