@@ -33,11 +33,12 @@ RUN mkdir -p ~/miniconda3 && \
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
     rm ~/miniconda3/miniconda.sh && \
-    echo "source ~/miniconda3/bin/activate && conda activate wofs-satellite" >> ~/.bashrc && \
     source ~/miniconda3/bin/activate && \
     conda env create --file /opt/wofs/environment.yml && \
-    source ~/.bashrc
+    echo -e "#! /bin/bash\n\n# script to activate the conda environment" >> ~/.bashrc && \
+    conda init bash && \
+    echo -e "\nconda activate wofs-satellite" >> ~/.bashrc
 
 WORKDIR /opt/wofs/wofs_satellite
 
-ENTRYPOINT ["bash", "--login", "source ~/miniconda3/bin/activate && conda activate wofs-satellite && source create.sh"]
+ENTRYPOINT ["bash", "--login", "create.sh"]
