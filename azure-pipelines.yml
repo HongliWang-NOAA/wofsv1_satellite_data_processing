@@ -5,18 +5,18 @@ resources:
 - repo: self
 
 parameters:
+- name: vargroup
+  displayName: DevOps variable group
+  type: string
+  default: "wofs-pipeline-variables" 
 - name: wofs_package_version
   displayName: Major/Minor Version
   type: string
   default: 2.0
 
 variables:
+- group: ${{ parameters.vargroup }}
 - group: wofs-test-variables
-- name: vmImageName
-  value: 'ubuntu-latest'
-- group: wofs-pipeline-variables
-- name: vmImageName
-  value: 'ubuntu-latest'
 
 stages:
 - stage: Build
@@ -25,7 +25,7 @@ stages:
   - job: Build
     displayName: Build
     pool:
-      vmImage: $(vmImageName)
+      vmImage: $(DEFAULT_POOL_IMAGE)
       name: Azure Pipelines
     steps:
     - task: PipAuthenticate@1
@@ -37,7 +37,7 @@ stages:
     - task: Docker@2
       displayName: 'Build docker image'
       inputs:
-        containerRegistry: 'func-wofs-prod-001 - Docker'
+        containerRegistry: $(AZ_DEVOPS_ACR_SERVICE_CONNECTION_NAME)
         repository: 'wofs/SatelliteProcessing'
         command: build
         Dockerfile: '**/Dockerfile'
@@ -49,7 +49,7 @@ stages:
     - task: Docker@2
       displayName: Publish
       inputs:
-        containerRegistry: 'func-wofs-prod-001 - Docker'
+        containerRegistry: $(AZ_DEVOPS_ACR_SERVICE_CONNECTION_NAME)
         repository: 'wofs/SatelliteProcessing'
         tags: |
           $(Build.BuildId)
