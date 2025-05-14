@@ -16,7 +16,6 @@ parameters:
 
 variables:
 - group: ${{ parameters.vargroup }}
-- group: wofs-test-variables
 
 stages:
 - stage: Build
