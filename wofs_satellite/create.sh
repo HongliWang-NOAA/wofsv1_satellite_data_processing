@@ -23,6 +23,6 @@ else
     goesabi="goesabi_tb_obs_allsky_rlt.py"
 fi
 
-python3 $goesabi -d ${data_directory}/TB -w ${wrf_file_path} -o $data_directory -a ${obstime} -t 1 -s "G$satellite"
+python3 $goesabi -d ${data_directory}/TB -w ${wrf_file_path} -o $data_directory -a ${obstime} -t 2 -s "G$satellite"
 
 python3 -m plot -d ${data_directory}/TB -p ${data_directory} -w ${wrf_file_path} -g $cycle_time
