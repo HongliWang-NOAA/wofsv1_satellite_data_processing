@@ -34,6 +34,7 @@ RUN mkdir -p ~/miniconda3 && \
     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
     rm ~/miniconda3/miniconda.sh && \
     source ~/miniconda3/bin/activate && \
+    conda tos accept && \
     conda env create --file /opt/wofs/environment.yml && \
     echo -e "#! /bin/bash\n\n# script to activate the conda environment" >> ~/.bashrc && \
     conda init bash && \
