@@ -43,10 +43,16 @@ data_urls=(
 )
 
 for item in "${data_urls[@]}"; do
-    wget --spider $item
+    # wget --spider $item
 
-    if [ $? -eq 0 ]; then
-        wget -O "$data_directory/cwp_larc.nc" $item
+    # if [ $? -eq 0 ]; then
+    #     wget -O "$data_directory/cwp_larc.nc" $item
+    #     break
+    # fi
+
+    status=$(curl --retry 5 --retry-max-time 60 --retry-connrefused -s -o "$data_directory/cwp_larc.nc" -w "%{http_code}" "$item")
+
+    if [ "$status" -eq 200 ]; then
         break
     fi
 done
