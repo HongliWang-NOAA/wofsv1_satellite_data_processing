@@ -50,10 +50,16 @@ for item in "${data_urls[@]}"; do
     #     break
     # fi
 
+    echo "Check for file: $item"
+
     status=$(curl --retry 5 --retry-max-time 60 --retry-connrefused -s -o "$data_directory/cwp_larc.nc" -w "%{http_code}" "$item")
 
     if [ "$status" -eq 200 ]; then
+        echo "Success!"
         break
+    # if the file is NOT 200, then it's probably an error message, so remove for the next attempt...
+    else
+        rm -f "$data_directory/cwp_larc.nc"
     fi
 done
 
