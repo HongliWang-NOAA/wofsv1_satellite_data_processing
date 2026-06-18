@@ -52,7 +52,7 @@ for item in "${data_urls[@]}"; do
 
     echo "Check for file: $item"
 
-    status=$(curl --retry 5 --retry-max-time 60 --retry-connrefused -s -o "$data_directory/cwp_larc.nc" -w "%{http_code}" "$item")
+    status=$(curl --retry 5 --max-time 30 --connect-timeout 10 --retry-max-time 60 --retry-connrefused -s -o "$data_directory/cwp_larc.nc" -w "%{http_code}" "$item")
 
     if [ "$status" -eq 200 ]; then
         echo "Success!"
